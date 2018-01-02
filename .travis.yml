@@ -26,6 +26,6 @@ install:
   - pip install pylint circuitpython-build-tools
 
 script:
-  - pylint adafruit_apds9960.py
+  - pylint adafruit_apds9960/*.py
   - ([[ ! -d "examples" ]] || pylint --disable=missing-docstring,invalid-name examples/*.py)
   - circuitpython-build-bundles --filename_prefix adafruit-circuitpython-apds9960 --library_location .
