@@ -2,10 +2,8 @@
 Introduction
 ============
 
-.. image:: https://readthedocs.org/projects/adafruit-circuitpython-APDS9960/badge/?version=latest
-
-    :target: https://circuitpython.readthedocs.io/projects/apds/en/latest/
-
+.. image:: https://readthedocs.org/projects/adafruit-circuitpython-apds9960/badge/?version=latest
+    :target: https://circuitpython.readthedocs.io/projects/apds9960/en/latest/
     :alt: Documentation Status
 
 .. image :: https://img.shields.io/discord/327254708534116352.svg
