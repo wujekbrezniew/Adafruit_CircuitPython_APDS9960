@@ -18,7 +18,13 @@ extensions = [
 # Uncomment the below if you use native CircuitPython modules such as
 # digitalio, micropython and busio. List the modules you use. Without it, the
 # autodoc module docs will fail to generate with a warning.
-autodoc_mock_imports = ["digitalio", "adafruit_register", "adafruit_bus_device", "micropython"]
+autodoc_mock_imports = ["digitalio", "adafruit_register", "adafruit_bus_device"]
+
+# Mock out micropython ourselves so that we can make const a lambda.
+import imp
+m = imp.new_module("micropython")
+m.const = lambda x: x
+sys.modules["micropython"] = m
 
 intersphinx_mapping = {'python': ('https://docs.python.org/3.4', None),'BusDevice': ('https://circuitpython.readthedocs.io/projects/busdevice/en/latest/', None),'CircuitPython': ('https://circuitpython.readthedocs.io/en/latest/', None)}
 
