@@ -210,8 +210,8 @@ class APDS9960:
             if n_recs:
 
                 with self.i2c_device as i2c:
-                    i2c.write(buffer, end=1, stop=False)
-                    i2c.readinto(buffer, start=1, end=min(129, 1 + n_recs * 4))
+                    i2c.write_then_readinto(buffer, buffer, out_end=1, in_start=1,
+                                            in_end=min(129, 1 + n_recs * 4))
                 upp, down, left, right = buffer[1:5]
 
                 if abs(upp - down) > 13:
@@ -356,8 +356,7 @@ class APDS9960:
         buf = self.buf2
         buf[0] = command
         with self.i2c_device as i2c:
-            i2c.write(buf, end=1)
-            i2c.readinto(buf, end=1)
+            i2c.write_then_readinto(buf, buf, out_end=1, in_end=1)
         return buf[0]
 
     def _color_data16(self, command):
@@ -366,6 +365,5 @@ class APDS9960:
         buf = self.buf2
         buf[0] = command
         with self.i2c_device as i2c:
-            i2c.write(buf, end=1, stop=False)
-            i2c.readinto(buf)
+            i2c.write_then_readinto(buf, buf, out_end=1)
         return buf[1] << 8 | buf[0]
