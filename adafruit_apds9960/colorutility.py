@@ -28,6 +28,8 @@ Helper functions for color calculations
 * Author(s): Michael McWethy
 """
 
+__version__ = "0.0.0-auto.0"
+__repo__ = "https://github.com/adafruit/Adafruit_CircuitPython_APDS9960.git"
 
 def calculate_color_temperature(r, g, b):
     """Converts the raw R/G/B values to color temperature in degrees Kelvin"""

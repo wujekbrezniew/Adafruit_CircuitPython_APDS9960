@@ -35,6 +35,8 @@ from adafruit_register.i2c_bit import RWBit
 from adafruit_bus_device.i2c_device import I2CDevice
 from micropython import const
 
+__version__ = "0.0.0-auto.0"
+__repo__ = "https://github.com/adafruit/Adafruit_CircuitPython_APDS9960.git"
 
 # ADDRESS_DEF = const(0x39)
 # INTEGRATION_TIME_DEF = const(0x01)
