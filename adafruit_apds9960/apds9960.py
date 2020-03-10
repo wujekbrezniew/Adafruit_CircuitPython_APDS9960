@@ -320,8 +320,9 @@ class APDS9960:
     def gesture_proximity_threshold(self, thresh):
         self._write8(APDS9960_GPENTH, thresh & 0xff)
 
+    @property
     def proximity(self):
-        """proximity value: range 0-255"""
+        """Proximity value: range 0-255"""
         return self._read8(APDS9960_PDATA)
 
     def clear_interrupt(self):
