@@ -72,7 +72,7 @@ Usage Example
     apds.enable_proximity_interrupt = True
 
     while True:
-            print(apds.proximity())
+            print(apds.proximity)
             apds.clear_interrupt()
 
 Hardware Set-up
@@ -153,7 +153,7 @@ To check for a object in proximity, see if a gesture is available first, then ge
 
   while True:
     if not interrupt_pin.value:
-      print(apds.proximity())
+      print(apds.proximity)
 
       # clear the interrupt
       apds.clear_interrupt()
