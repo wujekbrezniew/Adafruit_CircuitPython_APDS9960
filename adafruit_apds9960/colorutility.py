@@ -31,6 +31,7 @@ Helper functions for color calculations
 __version__ = "0.0.0-auto.0"
 __repo__ = "https://github.com/adafruit/Adafruit_CircuitPython_APDS9960.git"
 
+
 def calculate_color_temperature(r, g, b):
     """Converts the raw R/G/B values to color temperature in degrees Kelvin"""
 
@@ -54,6 +55,7 @@ def calculate_color_temperature(r, g, b):
 
     #    Return the results in degrees Kelvin
     return cct
+
 
 def calculate_lux(r, g, b):
     """Calculate ambient light values"""
