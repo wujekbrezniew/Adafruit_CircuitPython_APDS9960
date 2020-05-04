@@ -201,6 +201,11 @@ class APDS9960:
             self._gesture_mode = False
         self._gesture_enable = enable_flag
 
+    def rotated_gesture(self, original_gesture):
+        directions = [1, 4, 2, 3]
+        new_index = (directions.index(original_gesture) + self._rotation // 90) % 4
+        return directions[new_index]
+
     def gesture(self):  # pylint: disable-msg=too-many-branches
         """Returns gesture code if detected. =0 if no gesture detected
         =1 if an UP, =2 if a DOWN, =3 if an LEFT, =4 if a RIGHT
@@ -284,12 +289,7 @@ class APDS9960:
                 break
         if gesture_received != 0:
             if self._rotation != 0:
-                directions = [1, 4, 2, 3]
-                new_index = (
-                    directions.index(gesture_received) + self._rotation // 90
-                ) % 4
-                modified_gesture = directions[new_index]
-                return modified_gesture
+                return self.rotated_gesture(gesture_received)
         return gesture_received
 
     @property
