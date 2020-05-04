@@ -108,7 +108,14 @@ class APDS9960:
     _proximity_persistance = RWBits(4, APDS9960_PERS, 4)
 
     def __init__(
-        self, i2c, *, interrupt_pin=None, address=0x39, integration_time=0x01, gain=0x01
+        self,
+        i2c,
+        *,
+        interrupt_pin=None,
+        address=0x39,
+        integration_time=0x01,
+        gain=0x01,
+        rotation=0
     ):
 
         self.buf129 = None
@@ -125,6 +132,7 @@ class APDS9960:
         self.enable_gesture = False
         self.enable_proximity = False
         self.enable_color = False
+        self._rotation = rotation
         self.enable_proximity_interrupt = False
         self.clear_interrupt()
 
@@ -168,6 +176,17 @@ class APDS9960:
     enable_proximity_interrupt = RWBit(APDS9960_ENABLE, 5)
     """Proximity interrupt enable flag.  True if enabled,
         False to disable"""
+
+    ## GESTURE ROTATION
+    @property
+    def rotation(self):
+        """Gesture rotation offset"""
+        return self._rotation
+
+    @rotation.setter
+    def rotation(self, new_rotation):
+        if new_rotation in [0, 90, 180, 270]:
+            self._rotation = new_rotation
 
     ## GESTURE DETECTION
     @property
@@ -263,7 +282,14 @@ class APDS9960:
             if gesture_received or time.monotonic() - time_mark > 0.300:
                 self._reset_counts()
                 break
-
+        if gesture_received != 0:
+            if self._rotation != 0:
+                directions = [1, 4, 2, 3]
+                new_index = (
+                    directions.index(gesture_received) + self._rotation // 90
+                ) % 4
+                modified_gesture = directions[new_index]
+                return modified_gesture
         return gesture_received
 
     @property
