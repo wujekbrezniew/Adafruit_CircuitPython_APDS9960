@@ -202,6 +202,7 @@ class APDS9960:
         self._gesture_enable = enable_flag
 
     def rotated_gesture(self, original_gesture):
+        """Applies rotation offset to the given gesture direction and returns the result"""
         directions = [1, 4, 2, 3]
         new_index = (directions.index(original_gesture) + self._rotation // 90) % 4
         return directions[new_index]
