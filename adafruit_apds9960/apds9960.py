@@ -180,13 +180,15 @@ class APDS9960:
     ## GESTURE ROTATION
     @property
     def rotation(self):
-        """Gesture rotation offset"""
+        """Gesture rotation offset. Acceptable values are 0, 90, 180, 270."""
         return self._rotation
 
     @rotation.setter
     def rotation(self, new_rotation):
         if new_rotation in [0, 90, 180, 270]:
             self._rotation = new_rotation
+        else:
+            raise ValueError("Rotation value must be one of: 0, 90, 180, 270")
 
     ## GESTURE DETECTION
     @property
