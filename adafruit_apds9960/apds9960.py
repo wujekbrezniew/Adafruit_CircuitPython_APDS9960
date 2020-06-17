@@ -108,7 +108,14 @@ class APDS9960:
     _proximity_persistance = RWBits(4, APDS9960_PERS, 4)
 
     def __init__(
-        self, i2c, *, interrupt_pin=None, address=0x39, integration_time=0x01, gain=0x01
+        self,
+        i2c,
+        *,
+        interrupt_pin=None,
+        address=0x39,
+        integration_time=0x01,
+        gain=0x01,
+        rotation=0
     ):
 
         self.buf129 = None
@@ -125,6 +132,7 @@ class APDS9960:
         self.enable_gesture = False
         self.enable_proximity = False
         self.enable_color = False
+        self._rotation = rotation
         self.enable_proximity_interrupt = False
         self.clear_interrupt()
 
@@ -169,6 +177,19 @@ class APDS9960:
     """Proximity interrupt enable flag.  True if enabled,
         False to disable"""
 
+    ## GESTURE ROTATION
+    @property
+    def rotation(self):
+        """Gesture rotation offset. Acceptable values are 0, 90, 180, 270."""
+        return self._rotation
+
+    @rotation.setter
+    def rotation(self, new_rotation):
+        if new_rotation in [0, 90, 180, 270]:
+            self._rotation = new_rotation
+        else:
+            raise ValueError("Rotation value must be one of: 0, 90, 180, 270")
+
     ## GESTURE DETECTION
     @property
     def enable_gesture(self):
@@ -181,6 +202,12 @@ class APDS9960:
         if not enable_flag:
             self._gesture_mode = False
         self._gesture_enable = enable_flag
+
+    def rotated_gesture(self, original_gesture):
+        """Applies rotation offset to the given gesture direction and returns the result"""
+        directions = [1, 4, 2, 3]
+        new_index = (directions.index(original_gesture) + self._rotation // 90) % 4
+        return directions[new_index]
 
     def gesture(self):  # pylint: disable-msg=too-many-branches
         """Returns gesture code if detected. =0 if no gesture detected
@@ -263,7 +290,9 @@ class APDS9960:
             if gesture_received or time.monotonic() - time_mark > 0.300:
                 self._reset_counts()
                 break
-
+        if gesture_received != 0:
+            if self._rotation != 0:
+                return self.rotated_gesture(gesture_received)
         return gesture_received
 
     @property
