@@ -42,7 +42,6 @@ __repo__ = "https://github.com/adafruit/Adafruit_CircuitPython_APDS9960.git"
 # INTEGRATION_TIME_DEF = const(0x01)
 # GAIN_DEF = const(0x01)
 
-# pylint: disable-msg=bad-whitespace
 # APDS9960_RAM        = const(0x00)
 APDS9960_ENABLE = const(0x80)
 APDS9960_ATIME = const(0x81)
@@ -93,7 +92,6 @@ APDS9960_GFIFO_U = const(0xFC)
 # APDS9960_GFIFO_D    = const(0xFD)
 # APDS9960_GFIFO_L    = const(0xFE)
 # APDS9960_GFIFO_R    = const(0xFF)
-# pylint: enable-msg=bad-whitespace
 
 
 # pylint: disable-msg=too-many-instance-attributes
