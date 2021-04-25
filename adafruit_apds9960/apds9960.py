@@ -10,6 +10,21 @@ Driver class for the APDS9960 board.  Supports gesture, proximity, and color
 detection.
 
 * Author(s): Michael McWethy
+
+Implementation Notes
+--------------------
+
+**Hardware:**
+
+* Adafruit `APDS9960 Proximity, Light, RGB, and Gesture Sensor
+  <https://www.adafruit.com/product/3595>`_ (Product ID: 3595)
+
+**Software and Dependencies:**
+
+* Adafruit CircuitPython firmware for the supported boards:
+  https://circuitpython.org/downloads
+
+* Adafruit's Bus Device library: https://github.com/adafruit/Adafruit_CircuitPython_BusDevice
 """
 import time
 import digitalio
@@ -81,6 +96,38 @@ APDS9960_GFIFO_U = const(0xFC)
 class APDS9960:
     """
     APDS9900 provide basic driver services for the ASDS9960 breakout board
+
+    :param ~busio.I2C i2c: The I2C bus the BME280 is connected to
+    :param ~microcontroller.Pin interrupt_pin: Interrupt pin. Defaults to `None`
+    :param int address: The I2C device address. Defaults to :const:`0x39`
+    :param int integration_time: integration time. Defaults to :const:`0x01`
+    :param int gain: Device gain. Defaults to :const:`0x01`
+    :param int rotation: rotation of the device. Defaults to :const:`0`
+
+
+    **Quickstart: Importing and using the APDS9960**
+
+        Here is an example of using the :class:`APDS9960` class.
+        First you will need to import the libraries to use the sensor
+
+        .. code-block:: python
+
+            import board
+            from adafruit_apds9960.apds9960 import APDS9960
+
+        Once this is done you can define your `board.I2C` object and define your sensor object
+
+        .. code-block:: python
+
+            i2c = board.I2C()   # uses board.SCL and board.SDA
+            apds = APDS9960(i2c)
+
+        Now you have access to the :attr:`sensor.proximity` attribute
+
+        .. code-block:: python
+
+            proximity = apds.proximity
+
     """
 
     _gesture_enable = RWBit(APDS9960_ENABLE, 6)
