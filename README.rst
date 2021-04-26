@@ -56,14 +56,13 @@ To install in a virtual environment in your current project:
 Usage Example
 =============
 
-.. code-block:: python
+.. code-block:: python3
 
     import board
-    import busio
     import digitalio
     from adafruit_apds9960.apds9960 import APDS9960
 
-    i2c = busio.I2C(board.SCL, board.SDA)
+    i2c = board.I2C()
     int_pin = digitalio.DigitalInOut(board.D5)
     apds = APDS9960(i2c, interrupt_pin=int_pin)
 
@@ -85,22 +84,21 @@ Basics
 
 Of course, you must import i2c bus device, board pins, and the library:
 
-.. code:: python
+.. code:: python3
 
 
-  from board import SCL, SDA, A1
+  import board
   from adafruit_apds9960.apds9960 import APDS9960
-  import busio
   import digitalio
 
 To set-up the device to gather data, initialize the I2CDevice using SCL
 and SDA pins.   Then initialize the library.  Optionally provide an interrupt
 pin for proximity detection.
 
-.. code:: python
+.. code:: python3
 
-  int_pin = digitalio.DigitalInOut(A1)
-  i2c = busio.I2C(SCL, SDA)
+  int_pin = digitalio.DigitalInOut(board.A1)
+  i2c = board.I2C()
   apds = APDS9960(i2c, interrupt_pin=int_pin)
 
 Gestures
@@ -108,7 +106,7 @@ Gestures
 
 To get a gesture, see if a gesture is available first, then get the gesture Code
 
-.. code:: python
+.. code:: python3
 
   gesture = apds.gesture()
   if gesture == 1:
@@ -126,7 +124,7 @@ Color Measurement
 To get a color measure, enable color measures, wait for color data,
 then get the color data.
 
-.. code:: python
+.. code:: python3
 
   apds.enable_color = True
 
@@ -141,7 +139,7 @@ Proximity Detection
 
 To check for a object in proximity, see if a gesture is available first, then get the gesture Code
 
-.. code:: python
+.. code:: python3
 
   apds.enable_proximity = True
 

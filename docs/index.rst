@@ -23,6 +23,8 @@ Table of Contents
 .. toctree::
     :caption: Tutorials
 
+    Adafruit APDS9960 Proximity, Light, RGB, and Gesture Sensor Learning Guide <https://learn.adafruit.com/adafruit-apds9960-breakout>
+
 .. toctree::
     :caption: Related Products
 
