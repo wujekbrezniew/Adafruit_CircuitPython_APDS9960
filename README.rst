@@ -157,6 +157,11 @@ To check for a object in proximity, see if a gesture is available first, then ge
       apds.clear_interrupt()
 
 
+Documentation
+=============
+
+API documentation for this library can be found on `Read the Docs <https://circuitpython.readthedocs.io/projects/apds9960/en/latest/>`_.
+
 Contributing
 ============
 
