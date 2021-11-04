@@ -143,13 +143,7 @@ class APDS9960:
     _proximity_persistance = RWBits(4, APDS9960_PERS, 4)
 
     def __init__(
-        self,
-        i2c,
-        *,
-        address=0x39,
-        integration_time=0x01,
-        gain=0x01,
-        rotation=0
+        self, i2c, *, address=0x39, integration_time=0x01, gain=0x01, rotation=0
     ):
 
         self.buf129 = None
