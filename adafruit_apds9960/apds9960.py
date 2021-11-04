@@ -36,7 +36,6 @@ Implementation Notes
 * Adafruit's Bus Device library: https://github.com/adafruit/Adafruit_CircuitPython_BusDevice
 """
 import time
-import digitalio
 from adafruit_register.i2c_bits import RWBits
 from adafruit_register.i2c_bit import RWBit
 from adafruit_bus_device.i2c_device import I2CDevice
