@@ -98,7 +98,6 @@ class APDS9960:
     APDS9900 provide basic driver services for the ASDS9960 breakout board
 
     :param ~busio.I2C i2c: The I2C bus the BME280 is connected to
-    :param ~microcontroller.Pin interrupt_pin: Interrupt pin. Defaults to `None`
     :param int address: The I2C device address. Defaults to :const:`0x39`
     :param int integration_time: integration time. Defaults to :const:`0x01`
     :param int gain: Device gain. Defaults to :const:`0x01`
@@ -139,7 +138,6 @@ class APDS9960:
         self,
         i2c,
         *,
-        interrupt_pin=None,
         address=0x39,
         integration_time=0x01,
         gain=0x01,
@@ -150,9 +148,6 @@ class APDS9960:
         self.buf2 = bytearray(2)
 
         self.i2c_device = I2CDevice(i2c, address)
-        self._interrupt_pin = interrupt_pin
-        if interrupt_pin:
-            self._interrupt_pin.switch_to_input(pull=digitalio.Pull.UP)
 
         if self._read8(APDS9960_ID) != 0xAB:
             raise RuntimeError()
