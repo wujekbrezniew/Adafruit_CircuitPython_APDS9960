@@ -19,7 +19,7 @@ Implementation Notes
 * Adafruit `APDS9960 Proximity, Light, RGB, and Gesture Sensor
   <https://www.adafruit.com/product/3595>`_ (Product ID: 3595)
 
-* Adafruit `Adafruit Feather nRF52840 Sense
+* Adafruit `Adafruit CLUE
   <https://www.adafruit.com/product/4500>`_ (Product ID: 4500)
 
 * Adafruit `Adafruit Feather nRF52840 Sense
