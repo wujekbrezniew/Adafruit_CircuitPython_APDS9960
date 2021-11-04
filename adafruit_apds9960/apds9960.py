@@ -19,6 +19,15 @@ Implementation Notes
 * Adafruit `APDS9960 Proximity, Light, RGB, and Gesture Sensor
   <https://www.adafruit.com/product/3595>`_ (Product ID: 3595)
 
+* Adafruit `Adafruit Feather nRF52840 Sense
+  <https://www.adafruit.com/product/4500>`_ (Product ID: 4500)
+
+* Adafruit `Adafruit Feather nRF52840 Sense
+  <https://www.adafruit.com/product/4516>`_ (Product ID: 4516)
+
+* Adafruit `Adafruit Proximity Trinkey
+  <https://www.adafruit.com/product/5022>`_ (Product ID: 5022)
+
 **Software and Dependencies:**
 
 * Adafruit CircuitPython firmware for the supported boards:
@@ -97,7 +106,7 @@ class APDS9960:
     """
     APDS9900 provide basic driver services for the ASDS9960 breakout board
 
-    :param ~busio.I2C i2c: The I2C bus the BME280 is connected to
+    :param ~busio.I2C i2c: The I2C bus the ASDS9960 is connected to
     :param int address: The I2C device address. Defaults to :const:`0x39`
     :param int integration_time: integration time. Defaults to :const:`0x01`
     :param int gain: Device gain. Defaults to :const:`0x01`
