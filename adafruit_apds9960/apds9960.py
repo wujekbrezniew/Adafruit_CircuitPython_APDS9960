@@ -19,6 +19,15 @@ Implementation Notes
 * Adafruit `APDS9960 Proximity, Light, RGB, and Gesture Sensor
   <https://www.adafruit.com/product/3595>`_ (Product ID: 3595)
 
+* Adafruit `Adafruit CLUE
+  <https://www.adafruit.com/product/4500>`_ (Product ID: 4500)
+
+* Adafruit `Adafruit Feather nRF52840 Sense
+  <https://www.adafruit.com/product/4516>`_ (Product ID: 4516)
+
+* Adafruit `Adafruit Proximity Trinkey
+  <https://www.adafruit.com/product/5022>`_ (Product ID: 5022)
+
 **Software and Dependencies:**
 
 * Adafruit CircuitPython firmware for the supported boards:
@@ -27,7 +36,6 @@ Implementation Notes
 * Adafruit's Bus Device library: https://github.com/adafruit/Adafruit_CircuitPython_BusDevice
 """
 import time
-import digitalio
 from adafruit_register.i2c_bits import RWBits
 from adafruit_register.i2c_bit import RWBit
 from adafruit_bus_device.i2c_device import I2CDevice
@@ -97,8 +105,7 @@ class APDS9960:
     """
     APDS9900 provide basic driver services for the ASDS9960 breakout board
 
-    :param ~busio.I2C i2c: The I2C bus the BME280 is connected to
-    :param ~microcontroller.Pin interrupt_pin: Interrupt pin. Defaults to `None`
+    :param ~busio.I2C i2c: The I2C bus the ASDS9960 is connected to
     :param int address: The I2C device address. Defaults to :const:`0x39`
     :param int integration_time: integration time. Defaults to :const:`0x01`
     :param int gain: Device gain. Defaults to :const:`0x01`
@@ -136,23 +143,13 @@ class APDS9960:
     _proximity_persistance = RWBits(4, APDS9960_PERS, 4)
 
     def __init__(
-        self,
-        i2c,
-        *,
-        interrupt_pin=None,
-        address=0x39,
-        integration_time=0x01,
-        gain=0x01,
-        rotation=0
+        self, i2c, *, address=0x39, integration_time=0x01, gain=0x01, rotation=0
     ):
 
         self.buf129 = None
         self.buf2 = bytearray(2)
 
         self.i2c_device = I2CDevice(i2c, address)
-        self._interrupt_pin = interrupt_pin
-        if interrupt_pin:
-            self._interrupt_pin.switch_to_input(pull=digitalio.Pull.UP)
 
         if self._read8(APDS9960_ID) != 0xAB:
             raise RuntimeError()

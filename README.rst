@@ -64,7 +64,7 @@ Usage Example
 
     i2c = board.I2C()
     int_pin = digitalio.DigitalInOut(board.D5)
-    apds = APDS9960(i2c, interrupt_pin=int_pin)
+    apds = APDS9960(i2c)
 
     apds.enable_proximity = True
     apds.proximity_interrupt_threshold = (0, 175)
@@ -99,7 +99,7 @@ pin for proximity detection.
 
   int_pin = digitalio.DigitalInOut(board.A1)
   i2c = board.I2C()
-  apds = APDS9960(i2c, interrupt_pin=int_pin)
+  apds = APDS9960(i2c)
 
 Gestures
 --------
