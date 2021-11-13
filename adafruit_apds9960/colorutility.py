@@ -15,7 +15,7 @@ __version__ = "0.0.0-auto.0"
 __repo__ = "https://github.com/adafruit/Adafruit_CircuitPython_APDS9960.git"
 
 
-def calculate_color_temperature(r, g, b):
+def calculate_color_temperature(r: int, g: int, b: int) -> float:
     """Converts the raw R/G/B values to color temperature in degrees Kelvin"""
 
     #  1. Map RGB values to their XYZ counterparts.
@@ -40,7 +40,7 @@ def calculate_color_temperature(r, g, b):
     return cct
 
 
-def calculate_lux(r, g, b):
+def calculate_lux(r: int, g: int, b: int) -> float:
     """Calculate ambient light values"""
     #   This only uses RGB ... how can we integrate clear or calculate lux
     #   based exclusively on clear since this might be more reliable?

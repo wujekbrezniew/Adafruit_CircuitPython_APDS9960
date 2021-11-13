@@ -41,6 +41,13 @@ from adafruit_register.i2c_bit import RWBit
 from adafruit_bus_device.i2c_device import I2CDevice
 from micropython import const
 
+try:
+    # Only used for typing
+    from typing import Tuple
+    from busio import I2C
+except ImportError:
+    pass
+
 __version__ = "0.0.0-auto.0"
 __repo__ = "https://github.com/adafruit/Adafruit_CircuitPython_APDS9960.git"
 
@@ -143,7 +150,13 @@ class APDS9960:
     _proximity_persistance = RWBits(4, APDS9960_PERS, 4)
 
     def __init__(
-        self, i2c, *, address=0x39, integration_time=0x01, gain=0x01, rotation=0
+        self,
+        i2c: I2C,
+        *,
+        address: int = 0x39,
+        integration_time: int = 0x01,
+        gain: int = 0x01,
+        rotation: int = 0
     ):
 
         self.buf129 = None
@@ -178,7 +191,7 @@ class APDS9960:
         self._write8(APDS9960_GPULSE, (0x2 << 6) | 0x3)
 
     ## BOARD
-    def _reset_counts(self):
+    def _reset_counts(self) -> None:
         """Gesture detection internal counts"""
         self._saw_down_start = 0
         self._saw_up_start = 0
@@ -204,12 +217,12 @@ class APDS9960:
 
     ## GESTURE ROTATION
     @property
-    def rotation(self):
+    def rotation(self) -> int:
         """Gesture rotation offset. Acceptable values are 0, 90, 180, 270."""
         return self._rotation
 
     @rotation.setter
-    def rotation(self, new_rotation):
+    def rotation(self, new_rotation: int) -> None:
         if new_rotation in [0, 90, 180, 270]:
             self._rotation = new_rotation
         else:
@@ -217,24 +230,24 @@ class APDS9960:
 
     ## GESTURE DETECTION
     @property
-    def enable_gesture(self):
+    def enable_gesture(self) -> bool:
         """Gesture detection enable flag. True to enable, False to disable.
         Note that when disabled, gesture mode is turned off"""
         return self._gesture_enable
 
     @enable_gesture.setter
-    def enable_gesture(self, enable_flag):
+    def enable_gesture(self, enable_flag: bool) -> None:
         if not enable_flag:
             self._gesture_mode = False
         self._gesture_enable = enable_flag
 
-    def rotated_gesture(self, original_gesture):
+    def rotated_gesture(self, original_gesture: int) -> int:
         """Applies rotation offset to the given gesture direction and returns the result"""
         directions = [1, 4, 2, 3]
         new_index = (directions.index(original_gesture) + self._rotation // 90) % 4
         return directions[new_index]
 
-    def gesture(self):  # pylint: disable-msg=too-many-branches
+    def gesture(self) -> int:  # pylint: disable-msg=too-many-branches
         """Returns gesture code if detected. =0 if no gesture detected
         =1 if an UP, =2 if a DOWN, =3 if an LEFT, =4 if a RIGHT
         """
@@ -247,7 +260,7 @@ class APDS9960:
         if not self._gesture_valid:
             return 0
 
-        time_mark = 0
+        time_mark = 0.0
         gesture_received = 0
         while True:
 
@@ -321,21 +334,21 @@ class APDS9960:
         return gesture_received
 
     @property
-    def gesture_dimensions(self):
+    def gesture_dimensions(self) -> int:
         """Gesture dimension value: range 0-3"""
         return self._read8(APDS9960_GCONF3)
 
     @gesture_dimensions.setter
-    def gesture_dimensions(self, dims):
+    def gesture_dimensions(self, dims: int) -> None:
         self._write8(APDS9960_GCONF3, dims & 0x03)
 
     @property
-    def color_data_ready(self):
+    def color_data_ready(self) -> int:
         """Color data ready flag.  zero if not ready, 1 is ready"""
         return self._read8(APDS9960_STATUS) & 0x01
 
     @property
-    def color_data(self):
+    def color_data(self) -> Tuple[int, int, int, int]:
         """Tuple containing r, g, b, c values"""
         return (
             self._color_data16(APDS9960_CDATAL + 2),
@@ -346,7 +359,7 @@ class APDS9960:
 
     ### PROXIMITY
     @property
-    def proximity_interrupt_threshold(self):
+    def proximity_interrupt_threshold(self) -> Tuple[int, int, int]:
         """Tuple containing low and high threshold
         followed by the proximity interrupt persistance.
         When setting the proximity interrupt threshold values using a tuple of
@@ -359,7 +372,7 @@ class APDS9960:
         )
 
     @proximity_interrupt_threshold.setter
-    def proximity_interrupt_threshold(self, setting_tuple):
+    def proximity_interrupt_threshold(self, setting_tuple: Tuple[int, ...]) -> None:
         if setting_tuple:
             self._write8(APDS9960_PILT, setting_tuple[0])
         if len(setting_tuple) > 1:
@@ -370,34 +383,34 @@ class APDS9960:
         self._proximity_persistance = persist
 
     @property
-    def gesture_proximity_threshold(self):
+    def gesture_proximity_threshold(self) -> int:
         """Proximity threshold value: range 0-255"""
         return self._read8(APDS9960_GPENTH)
 
     @gesture_proximity_threshold.setter
-    def gesture_proximity_threshold(self, thresh):
+    def gesture_proximity_threshold(self, thresh: int) -> None:
         self._write8(APDS9960_GPENTH, thresh & 0xFF)
 
     @property
-    def proximity(self):
+    def proximity(self) -> int:
         """Proximity value: range 0-255"""
         return self._read8(APDS9960_PDATA)
 
-    def clear_interrupt(self):
+    def clear_interrupt(self) -> None:
         """Clear all interrupts"""
         self._writecmdonly(APDS9960_AICLEAR)
 
     @property
-    def integration_time(self):
+    def integration_time(self) -> int:
         """Proximity integration time: range 0-255"""
         return self._read8(APDS9960_ATIME)
 
     @integration_time.setter
-    def integration_time(self, int_time):
+    def integration_time(self, int_time: int) -> None:
         self._write8(APDS9960_ATIME, int_time & 0xFF)
 
     # method for reading and writing to I2C
-    def _write8(self, command, abyte):
+    def _write8(self, command: int, abyte: int) -> None:
         """Write a command and 1 byte of data to the I2C device"""
         buf = self.buf2
         buf[0] = command
@@ -405,14 +418,14 @@ class APDS9960:
         with self.i2c_device as i2c:
             i2c.write(buf)
 
-    def _writecmdonly(self, command):
+    def _writecmdonly(self, command: int) -> None:
         """Writes a command and 0 bytes of data to the I2C device"""
         buf = self.buf2
         buf[0] = command
         with self.i2c_device as i2c:
             i2c.write(buf, end=1)
 
-    def _read8(self, command):
+    def _read8(self, command: int) -> int:
         """Sends a command and reads 1 byte of data from the I2C device"""
         buf = self.buf2
         buf[0] = command
@@ -420,7 +433,7 @@ class APDS9960:
             i2c.write_then_readinto(buf, buf, out_end=1, in_end=1)
         return buf[0]
 
-    def _color_data16(self, command):
+    def _color_data16(self, command: int) -> int:
         """Sends a command and reads 2 bytes of data from the I2C device
         The returned data is low byte first followed by high byte"""
         buf = self.buf2
