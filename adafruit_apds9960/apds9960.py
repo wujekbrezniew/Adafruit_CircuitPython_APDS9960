@@ -56,23 +56,23 @@ __repo__ = "https://github.com/adafruit/Adafruit_CircuitPython_APDS9960.git"
 # GAIN_DEF = const(0x01)
 
 # APDS9960_RAM        = const(0x00)
-APDS9960_ENABLE = const(0x80)
-APDS9960_ATIME = const(0x81)
+_APDS9960_ENABLE = const(0x80)
+_APDS9960_ATIME = const(0x81)
 # APDS9960_WTIME      = const(0x83)
 # APDS9960_AILTIL     = const(0x84)
 # APDS9960_AILTH      = const(0x85)
 # APDS9960_AIHTL      = const(0x86)
 # APDS9960_AIHTH      = const(0x87)
-APDS9960_PILT = const(0x89)
-APDS9960_PIHT = const(0x8B)
-APDS9960_PERS = const(0x8C)
+_APDS9960_PILT = const(0x89)
+_APDS9960_PIHT = const(0x8B)
+_APDS9960_PERS = const(0x8C)
 # APDS9960_CONFIG1    = const(0x8D)
 # APDS9960_PPULSE     = const(0x8E)
-APDS9960_CONTROL = const(0x8F)
+_APDS9960_CONTROL = const(0x8F)
 # APDS9960_CONFIG2    = const(0x90)
-APDS9960_ID = const(0x92)
-APDS9960_STATUS = const(0x93)
-APDS9960_CDATAL = const(0x94)
+_APDS9960_ID = const(0x92)
+_APDS9960_STATUS = const(0x93)
+_APDS9960_CDATAL = const(0x94)
 # APDS9960_CDATAH     = const(0x95)
 # APDS9960_RDATAL     = const(0x96)
 # APDS9960_RDATAH     = const(0x97)
@@ -80,28 +80,28 @@ APDS9960_CDATAL = const(0x94)
 # APDS9960_GDATAH     = const(0x99)
 # APDS9960_BDATAL     = const(0x9A)
 # APDS9960_BDATAH     = const(0x9B)
-APDS9960_PDATA = const(0x9C)
+_APDS9960_PDATA = const(0x9C)
 # APDS9960_POFFSET_UR = const(0x9D)
 # APDS9960_POFFSET_DL = const(0x9E)
 # APDS9960_CONFIG3    = const(0x9F)
-APDS9960_GPENTH = const(0xA0)
+_APDS9960_GPENTH = const(0xA0)
 # APDS9960_GEXTH      = const(0xA1)
-APDS9960_GCONF1 = const(0xA2)
-APDS9960_GCONF2 = const(0xA3)
+_APDS9960_GCONF1 = const(0xA2)
+_APDS9960_GCONF2 = const(0xA3)
 # APDS9960_GOFFSET_U  = const(0xA4)
 # APDS9960_GOFFSET_D  = const(0xA5)
 # APDS9960_GOFFSET_L  = const(0xA7)
 # APDS9960_GOFFSET_R  = const(0xA9)
-APDS9960_GPULSE = const(0xA6)
-APDS9960_GCONF3 = const(0xAA)
-APDS9960_GCONF4 = const(0xAB)
-APDS9960_GFLVL = const(0xAE)
-APDS9960_GSTATUS = const(0xAF)
+_APDS9960_GPULSE = const(0xA6)
+_APDS9960_GCONF3 = const(0xAA)
+_APDS9960_GCONF4 = const(0xAB)
+_APDS9960_GFLVL = const(0xAE)
+_APDS9960_GSTATUS = const(0xAF)
 # APDS9960_IFORCE     = const(0xE4)
 # APDS9960_PICLEAR    = const(0xE5)
 # APDS9960_CICLEAR    = const(0xE6)
-APDS9960_AICLEAR = const(0xE7)
-APDS9960_GFIFO_U = const(0xFC)
+_APDS9960_AICLEAR = const(0xE7)
+_APDS9960_GFIFO_U = const(0xFC)
 # APDS9960_GFIFO_D    = const(0xFD)
 # APDS9960_GFIFO_L    = const(0xFE)
 # APDS9960_GFIFO_R    = const(0xFF)
@@ -144,10 +144,10 @@ class APDS9960:
 
     """
 
-    _gesture_enable = RWBit(APDS9960_ENABLE, 6)
-    _gesture_valid = RWBit(APDS9960_GSTATUS, 0)
-    _gesture_mode = RWBit(APDS9960_GCONF4, 0)
-    _proximity_persistance = RWBits(4, APDS9960_PERS, 4)
+    _gesture_enable = RWBit(_APDS9960_ENABLE, 6)
+    _gesture_valid = RWBit(_APDS9960_GSTATUS, 0)
+    _gesture_mode = RWBit(_APDS9960_GCONF4, 0)
+    _proximity_persistance = RWBits(4, _APDS9960_PERS, 4)
 
     def __init__(
         self,
@@ -164,7 +164,7 @@ class APDS9960:
 
         self.i2c_device = I2CDevice(i2c, address)
 
-        if self._read8(APDS9960_ID) != 0xAB:
+        if self._read8(_APDS9960_ID) != 0xAB:
             raise RuntimeError()
 
         self.enable_gesture = False
@@ -188,7 +188,7 @@ class APDS9960:
         self._reset_counts()
 
         # gesture pulse length=0x2 pulse count=0x3
-        self._write8(APDS9960_GPULSE, (0x2 << 6) | 0x3)
+        self._write8(_APDS9960_GPULSE, (0x2 << 6) | 0x3)
 
     ## BOARD
     def _reset_counts(self) -> None:
@@ -198,20 +198,20 @@ class APDS9960:
         self._saw_left_start = 0
         self._saw_right_start = 0
 
-    enable = RWBit(APDS9960_ENABLE, 0)
+    enable = RWBit(_APDS9960_ENABLE, 0)
     """Board enable.  True to enable, False to disable"""
-    enable_color = RWBit(APDS9960_ENABLE, 1)
+    enable_color = RWBit(_APDS9960_ENABLE, 1)
     """Color detection enable flag.
         True when color detection is enabled, else False"""
-    enable_proximity = RWBit(APDS9960_ENABLE, 2)
+    enable_proximity = RWBit(_APDS9960_ENABLE, 2)
     """Enable of proximity mode"""
-    gesture_fifo_threshold = RWBits(2, APDS9960_GCONF1, 6)
+    gesture_fifo_threshold = RWBits(2, _APDS9960_GCONF1, 6)
     """Gesture fifo threshold value: range 0-3"""
-    gesture_gain = RWBits(2, APDS9960_GCONF2, 5)
+    gesture_gain = RWBits(2, _APDS9960_GCONF2, 5)
     """Gesture gain value: range 0-3"""
-    color_gain = RWBits(2, APDS9960_CONTROL, 0)
+    color_gain = RWBits(2, _APDS9960_CONTROL, 0)
     """Color gain value"""
-    enable_proximity_interrupt = RWBit(APDS9960_ENABLE, 5)
+    enable_proximity_interrupt = RWBit(_APDS9960_ENABLE, 5)
     """Proximity interrupt enable flag.  True if enabled,
         False to disable"""
 
@@ -256,7 +256,7 @@ class APDS9960:
             self.buf129 = bytearray(129)
 
         buffer = self.buf129
-        buffer[0] = APDS9960_GFIFO_U
+        buffer[0] = _APDS9960_GFIFO_U
         if not self._gesture_valid:
             return 0
 
@@ -269,7 +269,7 @@ class APDS9960:
             gesture_received = 0
             time.sleep(0.030)  # 30 ms
 
-            n_recs = self._read8(APDS9960_GFLVL)
+            n_recs = self._read8(_APDS9960_GFLVL)
             if n_recs:
 
                 with self.i2c_device as i2c:
@@ -336,25 +336,25 @@ class APDS9960:
     @property
     def gesture_dimensions(self) -> int:
         """Gesture dimension value: range 0-3"""
-        return self._read8(APDS9960_GCONF3)
+        return self._read8(_APDS9960_GCONF3)
 
     @gesture_dimensions.setter
     def gesture_dimensions(self, dims: int) -> None:
-        self._write8(APDS9960_GCONF3, dims & 0x03)
+        self._write8(_APDS9960_GCONF3, dims & 0x03)
 
     @property
     def color_data_ready(self) -> int:
         """Color data ready flag.  zero if not ready, 1 is ready"""
-        return self._read8(APDS9960_STATUS) & 0x01
+        return self._read8(_APDS9960_STATUS) & 0x01
 
     @property
     def color_data(self) -> Tuple[int, int, int, int]:
         """Tuple containing r, g, b, c values"""
         return (
-            self._color_data16(APDS9960_CDATAL + 2),
-            self._color_data16(APDS9960_CDATAL + 4),
-            self._color_data16(APDS9960_CDATAL + 6),
-            self._color_data16(APDS9960_CDATAL),
+            self._color_data16(_APDS9960_CDATAL + 2),
+            self._color_data16(_APDS9960_CDATAL + 4),
+            self._color_data16(_APDS9960_CDATAL + 6),
+            self._color_data16(_APDS9960_CDATAL),
         )
 
     ### PROXIMITY
@@ -366,17 +366,17 @@ class APDS9960:
         zero to three values: low threshold, high threshold, persistance.
         persistance defaults to 4 if not provided"""
         return (
-            self._read8(APDS9960_PILT),
-            self._read8(APDS9960_PIHT),
+            self._read8(_APDS9960_PILT),
+            self._read8(_APDS9960_PIHT),
             self._proximity_persistance,
         )
 
     @proximity_interrupt_threshold.setter
     def proximity_interrupt_threshold(self, setting_tuple: Tuple[int, ...]) -> None:
         if setting_tuple:
-            self._write8(APDS9960_PILT, setting_tuple[0])
+            self._write8(_APDS9960_PILT, setting_tuple[0])
         if len(setting_tuple) > 1:
-            self._write8(APDS9960_PIHT, setting_tuple[1])
+            self._write8(_APDS9960_PIHT, setting_tuple[1])
         persist = 4  # default 4
         if len(setting_tuple) > 2:
             persist = min(setting_tuple[2], 7)
@@ -385,29 +385,29 @@ class APDS9960:
     @property
     def gesture_proximity_threshold(self) -> int:
         """Proximity threshold value: range 0-255"""
-        return self._read8(APDS9960_GPENTH)
+        return self._read8(_APDS9960_GPENTH)
 
     @gesture_proximity_threshold.setter
     def gesture_proximity_threshold(self, thresh: int) -> None:
-        self._write8(APDS9960_GPENTH, thresh & 0xFF)
+        self._write8(_APDS9960_GPENTH, thresh & 0xFF)
 
     @property
     def proximity(self) -> int:
         """Proximity value: range 0-255"""
-        return self._read8(APDS9960_PDATA)
+        return self._read8(_APDS9960_PDATA)
 
     def clear_interrupt(self) -> None:
         """Clear all interrupts"""
-        self._writecmdonly(APDS9960_AICLEAR)
+        self._writecmdonly(_APDS9960_AICLEAR)
 
     @property
     def integration_time(self) -> int:
         """Proximity integration time: range 0-255"""
-        return self._read8(APDS9960_ATIME)
+        return self._read8(_APDS9960_ATIME)
 
     @integration_time.setter
     def integration_time(self, int_time: int) -> None:
-        self._write8(APDS9960_ATIME, int_time & 0xFF)
+        self._write8(_APDS9960_ATIME, int_time & 0xFF)
 
     # method for reading and writing to I2C
     def _write8(self, command: int, abyte: int) -> None:
