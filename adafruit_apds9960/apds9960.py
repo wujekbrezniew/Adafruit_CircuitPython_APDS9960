@@ -55,7 +55,7 @@ __repo__ = "https://github.com/adafruit/Adafruit_CircuitPython_APDS9960.git"
 
 # APDS9960_RAM        = const(0x00)
 _APDS9960_ENABLE = const(0x80)
-_APDS9960_ATIME = const(0x81)
+# _APDS9960_ATIME = const(0x81)
 # APDS9960_WTIME      = const(0x83)
 # APDS9960_AILTIL     = const(0x84)
 # APDS9960_AILTH      = const(0x85)
@@ -66,7 +66,7 @@ _APDS9960_PIHT = const(0x8B)
 _APDS9960_PERS = const(0x8C)
 # APDS9960_CONFIG1    = const(0x8D)
 # APDS9960_PPULSE     = const(0x8E)
-_APDS9960_CONTROL = const(0x8F)
+# _APDS9960_CONTROL = const(0x8F)
 # APDS9960_CONFIG2    = const(0x90)
 _APDS9960_ID = const(0x92)
 _APDS9960_STATUS = const(0x93)
@@ -82,7 +82,7 @@ _APDS9960_PDATA = const(0x9C)
 # APDS9960_POFFSET_UR = const(0x9D)
 # APDS9960_POFFSET_DL = const(0x9E)
 # APDS9960_CONFIG3    = const(0x9F)
-_APDS9960_GPENTH = const(0xA0)
+# _APDS9960_GPENTH = const(0xA0)
 # APDS9960_GEXTH      = const(0xA1)
 _APDS9960_GCONF1 = const(0xA2)
 _APDS9960_GCONF2 = const(0xA3)
@@ -91,7 +91,7 @@ _APDS9960_GCONF2 = const(0xA3)
 # APDS9960_GOFFSET_L  = const(0xA7)
 # APDS9960_GOFFSET_R  = const(0xA9)
 _APDS9960_GPULSE = const(0xA6)
-_APDS9960_GCONF3 = const(0xAA)
+# _APDS9960_GCONF3 = const(0xAA)
 _APDS9960_GCONF4 = const(0xAB)
 _APDS9960_GFLVL = const(0xAE)
 _APDS9960_GSTATUS = const(0xAF)
@@ -123,8 +123,8 @@ _BIT_MASK_GCONF1_GFIFOTH = const(0xC0)
 _BIT_POSITON_GCONF2_GGAIN = const(5)
 _BIT_MASK_GCONF2_GGAIN = const(0x60)
 
-_BIT_POSITON_CONTROL_AGAIN = const(0)
-_BIT_MASK_CONTROL_AGAIN = const(0x03)
+# _BIT_POSITON_CONTROL_AGAIN = const(0)
+# _BIT_MASK_CONTROL_AGAIN = const(0x03)
 
 # pylint: disable-msg=too-many-instance-attributes
 class APDS9960:
@@ -166,11 +166,11 @@ class APDS9960:
     # _gesture_enable = RWBit(_APDS9960_ENABLE, 6)
 
     @property
-    def _gesture_enable(self) -> bool:
+    def enable_gesture(self) -> bool:
         return self._get_bit(_APDS9960_ENABLE, _BIT_MASK_ENABLE_GESTURE)
 
-    @_gesture_enable.setter
-    def _gesture_enable(self, value: bool) -> None:
+    @enable_gesture.setter
+    def enable_gesture(self, value: bool) -> None:
         self._set_bit(_APDS9960_ENABLE, _BIT_MASK_ENABLE_GESTURE, value)
     
     # _gesture_mode = RWBit(_APDS9960_GCONF4, 0)
@@ -205,8 +205,8 @@ class APDS9960:
         i2c: I2C,
         *,
         address: int = 0x39,
-        integration_time: int = 0x01,
-        gain: int = 0x01,
+        # integration_time: int = 0x01,
+        # gain: int = 0x01,
         rotation: int = 0
     ):
 
@@ -230,12 +230,12 @@ class APDS9960:
         self.enable = True
         time.sleep(0.010)
 
-        self.color_gain = gain
-        self.integration_time = integration_time
-        self.gesture_dimensions = 0x00  # all
+        # self.color_gain = gain
+        # self.integration_time = integration_time
+        # self.gesture_dimensions = 0x00  # all
         self.gesture_fifo_threshold = 0x01  # fifo 4
         self.gesture_gain = 0x02  # gain 4
-        self.gesture_proximity_threshold = 50
+        # self.gesture_proximity_threshold = 50
         self._reset_counts()
 
         # gesture pulse length=0x2 pulse count=0x3
@@ -307,14 +307,14 @@ class APDS9960:
 
     # color_gain = RWBits(2, _APDS9960_CONTROL, 0)
 
-    @property
-    def color_gain(self) -> int:
-        self._get_bits(_APDS9960_CONTROL, _BIT_POSITON_CONTROL_AGAIN, _BIT_MASK_CONTROL_AGAIN)
+    # @property
+    # def color_gain(self) -> int:
+    #     self._get_bits(_APDS9960_CONTROL, _BIT_POSITON_CONTROL_AGAIN, _BIT_MASK_CONTROL_AGAIN)
 
-    @gesture_gain.setter
-    def color_gain(self, value: int) -> None:
-        """Color gain value"""
-        self._set_bits(_APDS9960_CONTROL, _BIT_POSITON_CONTROL_AGAIN, _BIT_MASK_CONTROL_AGAIN, value)
+    # @gesture_gain.setter
+    # def color_gain(self, value: int) -> None:
+    #     """Color gain value"""
+    #     self._set_bits(_APDS9960_CONTROL, _BIT_POSITON_CONTROL_AGAIN, _BIT_MASK_CONTROL_AGAIN, value)
 
     # enable_proximity_interrupt = RWBit(_APDS9960_ENABLE, 5)
 
@@ -342,23 +342,23 @@ class APDS9960:
             raise ValueError("Rotation value must be one of: 0, 90, 180, 270")
 
     ## GESTURE DETECTION
-    @property
-    def enable_gesture(self) -> bool:
-        """Gesture detection enable flag. True to enable, False to disable.
-        Note that when disabled, gesture mode is turned off"""
-        return self._gesture_enable
+    # @property
+    # def enable_gesture(self) -> bool:
+    #     """Gesture detection enable flag. True to enable, False to disable.
+    #     Note that when disabled, gesture mode is turned off"""
+    #     return self._gesture_enable
 
-    @enable_gesture.setter
-    def enable_gesture(self, enable_flag: bool) -> None:
-        if not enable_flag:
-            self._gesture_mode = False
-        self._gesture_enable = enable_flag
+    # @enable_gesture.setter
+    # def enable_gesture(self, enable_flag: bool) -> None:
+    #     if not enable_flag:
+    #         self._gesture_mode = False
+    #     self._gesture_enable = enable_flag
 
-    def rotated_gesture(self, original_gesture: int) -> int:
-        """Applies rotation offset to the given gesture direction and returns the result"""
-        directions = [1, 4, 2, 3]
-        new_index = (directions.index(original_gesture) + self._rotation // 90) % 4
-        return directions[new_index]
+    # def rotated_gesture(self, original_gesture: int) -> int:
+    #     """Applies rotation offset to the given gesture direction and returns the result"""
+    #     directions = [1, 4, 2, 3]
+    #     new_index = (directions.index(original_gesture) + self._rotation // 90) % 4
+    #     return directions[new_index]
 
     def gesture(self) -> int:  # pylint: disable-msg=too-many-branches
         """Returns gesture code if detected. =0 if no gesture detected
@@ -443,17 +443,21 @@ class APDS9960:
                 break
         if gesture_received != 0:
             if self._rotation != 0:
-                return self.rotated_gesture(gesture_received)
+                
+                directions = [1, 4, 2, 3]
+                new_index = (directions.index(gesture_received) + self._rotation // 90) % 4
+                return directions[new_index]
+
         return gesture_received
 
-    @property
-    def gesture_dimensions(self) -> int:
-        """Gesture dimension value: range 0-3"""
-        return self._read8(_APDS9960_GCONF3)
+    # @property
+    # def gesture_dimensions(self) -> int:
+    #     """Gesture dimension value: range 0-3"""
+    #     return self._read8(_APDS9960_GCONF3)
 
-    @gesture_dimensions.setter
-    def gesture_dimensions(self, dims: int) -> None:
-        self._write8(_APDS9960_GCONF3, dims & 0x03)
+    # @gesture_dimensions.setter
+    # def gesture_dimensions(self, dims: int) -> None:
+    #     self._write8(_APDS9960_GCONF3, dims & 0x03)
 
     @property
     def color_data_ready(self) -> int:
@@ -495,14 +499,14 @@ class APDS9960:
             persist = min(setting_tuple[2], 7)
         self._proximity_persistance = persist
 
-    @property
-    def gesture_proximity_threshold(self) -> int:
-        """Proximity threshold value: range 0-255"""
-        return self._read8(_APDS9960_GPENTH)
+    # @property
+    # def gesture_proximity_threshold(self) -> int:
+    #     """Proximity threshold value: range 0-255"""
+    #     return self._read8(_APDS9960_GPENTH)
 
-    @gesture_proximity_threshold.setter
-    def gesture_proximity_threshold(self, thresh: int) -> None:
-        self._write8(_APDS9960_GPENTH, thresh & 0xFF)
+    # @gesture_proximity_threshold.setter
+    # def gesture_proximity_threshold(self, thresh: int) -> None:
+    #     self._write8(_APDS9960_GPENTH, thresh & 0xFF)
 
     @property
     def proximity(self) -> int:
@@ -513,14 +517,14 @@ class APDS9960:
         """Clear all interrupts"""
         self._writecmdonly(_APDS9960_AICLEAR)
 
-    @property
-    def integration_time(self) -> int:
-        """Proximity integration time: range 0-255"""
-        return self._read8(_APDS9960_ATIME)
+    # @property
+    # def integration_time(self) -> int:
+    #     """Proximity integration time: range 0-255"""
+    #     return self._read8(_APDS9960_ATIME)
 
-    @integration_time.setter
-    def integration_time(self, int_time: int) -> None:
-        self._write8(_APDS9960_ATIME, int_time & 0xFF)
+    # @integration_time.setter
+    # def integration_time(self, int_time: int) -> None:
+    #     self._write8(_APDS9960_ATIME, int_time & 0xFF)
 
     # method for reading and writing to I2C
     def _write8(self, command: int, abyte: int) -> None:
