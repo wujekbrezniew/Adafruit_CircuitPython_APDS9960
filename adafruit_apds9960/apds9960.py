@@ -36,8 +36,6 @@ Implementation Notes
 * Adafruit's Bus Device library: https://github.com/adafruit/Adafruit_CircuitPython_BusDevice
 """
 import time
-from adafruit_register.i2c_bits import RWBits
-from adafruit_register.i2c_bit import RWBit
 from adafruit_bus_device.i2c_device import I2CDevice
 from micropython import const
 
@@ -106,6 +104,27 @@ _APDS9960_GFIFO_U = const(0xFC)
 # APDS9960_GFIFO_L    = const(0xFE)
 # APDS9960_GFIFO_R    = const(0xFF)
 
+_BIT_MASK_ENABLE_EN = const(0x01)
+_BIT_MASK_ENABLE_PROX = const(0x04)
+_BIT_MASK_ENABLE_PROX_INT = const(0x10)
+_BIT_MASK_ENABLE_GESTURE = const(0x20)
+_BIT_MASK_ENABLE_COLOR = const(0x02)
+
+_BIT_MASK_GSTATUS_GVALID = const(0x01)
+
+_BIT_MASK_GCONF4_GMODE = const(0x01)
+
+_BIT_POSITON_PERS_PPERS = const(4)
+_BIT_MASK_PERS_PPERS = const(0xF0)
+
+_BIT_POSITON_GCONF1_GFIFOTH = const(6)
+_BIT_MASK_GCONF1_GFIFOTH = const(0xC0)
+
+_BIT_POSITON_GCONF2_GGAIN = const(5)
+_BIT_MASK_GCONF2_GGAIN = const(0x60)
+
+_BIT_POSITON_CONTROL_AGAIN = const(0)
+_BIT_MASK_CONTROL_AGAIN = const(0x03)
 
 # pylint: disable-msg=too-many-instance-attributes
 class APDS9960:
@@ -144,10 +163,42 @@ class APDS9960:
 
     """
 
-    _gesture_enable = RWBit(_APDS9960_ENABLE, 6)
-    _gesture_valid = RWBit(_APDS9960_GSTATUS, 0)
-    _gesture_mode = RWBit(_APDS9960_GCONF4, 0)
-    _proximity_persistance = RWBits(4, _APDS9960_PERS, 4)
+    # _gesture_enable = RWBit(_APDS9960_ENABLE, 6)
+
+    @property
+    def _gesture_enable(self) -> bool:
+        return self._get_bit(_APDS9960_ENABLE, _BIT_MASK_ENABLE_GESTURE)
+
+    @_gesture_enable.setter
+    def _gesture_enable(self, value: bool) -> None:
+        self._set_bit(_APDS9960_ENABLE, _BIT_MASK_ENABLE_GESTURE, value)
+    
+    # _gesture_mode = RWBit(_APDS9960_GCONF4, 0)
+
+    @property
+    def _gesture_mode(self) -> bool:
+        return self._get_bit(_APDS9960_GCONF4, _BIT_MASK_GCONF4_GMODE)
+
+    @_gesture_mode.setter
+    def _gesture_mode(self, value: bool) -> None:
+        self._set_bit(_APDS9960_GCONF4, _BIT_MASK_GCONF4_GMODE, value)
+
+    # _gesture_valid = RWBit(_APDS9960_GSTATUS, 0)
+
+    @property
+    def _gesture_valid(self) -> bool:
+        return self._get_bit(_APDS9960_GSTATUS, _BIT_MASK_GSTATUS_GVALID)
+
+    # _proximity_persistance = RWBits(4, _APDS9960_PERS, 4)
+
+    @property
+    def _proximity_persistance(self) -> int:
+        self._get_bits(_APDS9960_PERS, _BIT_POSITON_PERS_PPERS, _BIT_MASK_PERS_PPERS)
+
+    @_proximity_persistance.setter
+    def _proximity_persistance(self, value: int) -> None:
+        self._set_bits(_APDS9960_PERS, _BIT_POSITON_PERS_PPERS, _BIT_MASK_PERS_PPERS, value)
+
 
     def __init__(
         self,
@@ -198,22 +249,84 @@ class APDS9960:
         self._saw_left_start = 0
         self._saw_right_start = 0
 
-    enable = RWBit(_APDS9960_ENABLE, 0)
-    """Board enable.  True to enable, False to disable"""
-    enable_color = RWBit(_APDS9960_ENABLE, 1)
-    """Color detection enable flag.
-        True when color detection is enabled, else False"""
-    enable_proximity = RWBit(_APDS9960_ENABLE, 2)
-    """Enable of proximity mode"""
-    gesture_fifo_threshold = RWBits(2, _APDS9960_GCONF1, 6)
-    """Gesture fifo threshold value: range 0-3"""
-    gesture_gain = RWBits(2, _APDS9960_GCONF2, 5)
-    """Gesture gain value: range 0-3"""
-    color_gain = RWBits(2, _APDS9960_CONTROL, 0)
-    """Color gain value"""
-    enable_proximity_interrupt = RWBit(_APDS9960_ENABLE, 5)
-    """Proximity interrupt enable flag.  True if enabled,
-        False to disable"""
+    # enable = RWBit(_APDS9960_ENABLE, 0)
+
+    @property
+    def enable(self) -> bool:
+        return self._get_bit(_APDS9960_ENABLE, _BIT_MASK_ENABLE_EN)
+
+    @enable.setter
+    def enable(self, value: bool) -> None:
+        """Board enable.  True to enable, False to disable"""
+        self._set_bit(_APDS9960_ENABLE, _BIT_MASK_ENABLE_EN, value)
+
+    # enable_color = RWBit(_APDS9960_ENABLE, 1)
+
+    @property
+    def enable_color(self) -> bool:
+        return self._get_bit(_APDS9960_ENABLE, _BIT_MASK_ENABLE_COLOR)
+
+    @enable_color.setter
+    def enable_color(self, value: bool) -> None:
+        """Color detection enable flag.
+            True when color detection is enabled, else False"""
+        self._set_bit(_APDS9960_ENABLE, _BIT_MASK_ENABLE_COLOR, value)
+
+    # enable_proximity = RWBit(_APDS9960_ENABLE, 2)
+
+    @property
+    def enable_proximity(self) -> bool:
+        return self._get_bit(_APDS9960_ENABLE, _BIT_MASK_ENABLE_PROX)
+
+    @enable_proximity.setter
+    def enable_proximity(self, value: bool) -> None:
+        """Enable of proximity mode"""
+        self._set_bit(_APDS9960_ENABLE, _BIT_MASK_ENABLE_PROX, value)
+
+    # gesture_fifo_threshold = RWBits(2, _APDS9960_GCONF1, 6)
+
+    @property
+    def gesture_fifo_threshold(self) -> int:
+        self._get_bits(_APDS9960_GCONF1, _BIT_POSITON_GCONF1_GFIFOTH, _BIT_MASK_GCONF1_GFIFOTH)
+
+    @gesture_fifo_threshold.setter
+    def gesture_fifo_threshold(self, value: int) -> None:
+        """Gesture fifo threshold value: range 0-3"""
+        self._set_bits(_APDS9960_GCONF1, _BIT_POSITON_GCONF1_GFIFOTH, _BIT_MASK_GCONF1_GFIFOTH, value)
+
+    # gesture_gain = RWBits(2, _APDS9960_GCONF2, 5)
+
+    @property
+    def gesture_gain(self) -> int:
+        self._get_bits(_APDS9960_GCONF2, _BIT_POSITON_GCONF2_GGAIN, _BIT_MASK_GCONF2_GGAIN)
+
+    @gesture_gain.setter
+    def gesture_gain(self, value: int) -> None:
+        """Gesture gain value: range 0-3"""
+        self._set_bits(_APDS9960_GCONF2, _BIT_POSITON_GCONF2_GGAIN, _BIT_MASK_GCONF2_GGAIN, value)
+
+    # color_gain = RWBits(2, _APDS9960_CONTROL, 0)
+
+    @property
+    def color_gain(self) -> int:
+        self._get_bits(_APDS9960_CONTROL, _BIT_POSITON_CONTROL_AGAIN, _BIT_MASK_CONTROL_AGAIN)
+
+    @gesture_gain.setter
+    def color_gain(self, value: int) -> None:
+        """Color gain value"""
+        self._set_bits(_APDS9960_CONTROL, _BIT_POSITON_CONTROL_AGAIN, _BIT_MASK_CONTROL_AGAIN, value)
+
+    # enable_proximity_interrupt = RWBit(_APDS9960_ENABLE, 5)
+
+    @property
+    def enable_proximity_interrupt(self) -> bool:
+        return self._get_bit(_APDS9960_ENABLE, _BIT_MASK_ENABLE_PROX_INT)
+
+    @enable_proximity_interrupt.setter
+    def enable_proximity_interrupt(self, value: bool) -> None:
+        """Proximity interrupt enable flag.  True if enabled,
+            False to disable"""
+        self._set_bit(_APDS9960_ENABLE, _BIT_MASK_ENABLE_PROX_INT, value)
 
     ## GESTURE ROTATION
     @property
@@ -433,6 +546,41 @@ class APDS9960:
             i2c.write_then_readinto(buf, buf, out_end=1, in_end=1)
         return buf[0]
 
+    def _get_bit(self, register: int, bitmask: int) -> int:
+        buf = self.buf2
+        buf[0] = register
+        with self.i2c_device as i2c:
+            i2c.write_then_readinto(buf, buf, out_end=1, in_start=1)
+        return (buf[1] & bitmask)
+
+    def _set_bit(self, register: int, bitmask: int, value: bool) -> None:
+        buf = self.buf2
+        buf[0] = register
+        with self.i2c_device as i2c:
+            i2c.write_then_readinto(buf, buf, out_end=1, in_start=1)
+        if value:
+            buf[1] |= bitmask
+        else:
+            buf[1] &= bitmask
+        with self.i2c_device as i2c:
+            i2c.write(buf, end=1)
+
+    def _get_bits(self, register: int, bit_position: int, bit_mask: int) -> int:
+        buf = self.buf2
+        buf[0] = register
+        with self.i2c_device as i2c:
+            i2c.write_then_readinto(buf, buf, out_end=1, in_start=1)
+        return (buf[1] & bit_mask) >> bit_position
+
+    def _set_bits(self, register: int, bit_position: int, bit_mask: int, value: int) -> None:
+        buf = self.buf2
+        buf[0] = register
+        with self.i2c_device as i2c:
+            i2c.write_then_readinto(buf, buf, out_end=1, in_start=1)
+        buf[1] = (buf[1] & ~bit_mask) | (value << bit_position)
+        with self.i2c_device as i2c:
+            i2c.write(buf, end=1)
+        
     def _color_data16(self, command: int) -> int:
         """Sends a command and reads 2 bytes of data from the I2C device
         The returned data is low byte first followed by high byte"""
