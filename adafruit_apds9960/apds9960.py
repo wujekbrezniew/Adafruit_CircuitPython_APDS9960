@@ -132,10 +132,9 @@ class APDS9960:
     APDS9900 provide basic driver services for the ASDS9960 breakout board
 
     :param ~busio.I2C i2c: The I2C bus the ASDS9960 is connected to
-    :param int address: The I2C device address. Defaults to :const:`0x39`
-    :param int integration_time: integration time. Defaults to :const:`0x01`
-    :param int gain: Device gain. Defaults to :const:`0x01`
     :param int rotation: rotation of the device. Defaults to :const:`0`
+    :param bool reset: If true, reset device on init. Defaults to :const:`True`
+    :param bool set_defaults: If true, set sensible defaults on init. Defaults to :const:`True`
 
 
     **Quickstart: Importing and using the APDS9960**
@@ -155,10 +154,11 @@ class APDS9960:
             i2c = board.I2C()   # uses board.SCL and board.SDA
             apds = APDS9960(i2c)
 
-        Now you have access to the :attr:`sensor.proximity` attribute
+        Now you have access to the :attr:`apds.proximity_enable` :attr:`apds.proximity` attributes
 
         .. code-block:: python
 
+            apds.proximity_enable = True
             proximity = apds.proximity
 
     """
@@ -184,21 +184,34 @@ class APDS9960:
 
         if reset:
             self._write8(_APDS9960_ENABLE, 0) # Disable sensor and all functions/interrupts
+
+            # Reset basic config registers to power-on defaults
+            self._write8(_APDS9960_ATIME, 255)
+            self._write8(_APDS9960_PIHT, 0)
+            self._write8(_APDS9960_PERS, 0)
+            self._write8(_APDS9960_CONTROL, 1)
+            self._write8(_APDS9960_GPENTH, 0)
+            self._write8(_APDS9960_GEXTH, 0)
+            self._write8(_APDS9960_GCONF1, 0)
+            self._write8(_APDS9960_GCONF2, 0)
+            self._write8(_APDS9960_GPULSE, 0)
+
+            # Clear all interrupts
             self.clear_interrupt()
 
+            # Enable sensor and wait 10ms for the power on delay to finish
             self.enable = True
-            time.sleep(0.010) # Wait for PON delay to clear before proceeding
+            time.sleep(0.010)
 
         if set_defaults:
-            self._write8(_APDS9960_PIHT, 5) # Trigger PINT at >= 5 counts
-            self._write8(_APDS9960_PERS, 80) # PPERS: 5 cycles, APERS: 0 cycles
-            self._write8(_APDS9960_ATIME, 182) # ATIME: 182 (200ms color integration time)
-            self._write8(_APDS9960_CONTROL, 1) # AGAIN: 1 (4x color gain)
-            self._write8(_APDS9960_GPENTH, 5) # Trigger gesture engine at >= 5 counts of proximity
-            self._write8(_APDS9960_GEXTH, 30) # Exit gesture loop if all counts drop below 30
-            self._write8(_APDS9960_GCONF1, 2) # GEXPERS: 4 cycles, GEXMSK: 0, GFIFOTH: 0 datasets
-            self._write8(_APDS9960_GCONF2, 33) # GWTIME: 1 (2.8ms), GLDRIVE: 100mA, GGAIN: 1 (2x) 
-            self._write8(_APDS9960_GPULSE, 133) # GPULSE: 5 pulses, GPLEN: 16 us
+            self.proximity_interrupt_threshold = (0, 5, 4) # Trigger PINT at >= 5, PPERS: 4 cycles
+            self._write8(_APDS9960_GPENTH, 0x05) # Enter gesture engine at >= 5 counts
+            self._write8(_APDS9960_GEXTH, 0x1E) # Exit gesture engine if all counts drop below 30
+            self._write8(_APDS9960_GCONF1, 0x82) # GEXPERS: 1 (4 cycles), GFIFOTH: 2 (8 datasets)
+            self._write8(_APDS9960_GCONF2, 0x21) # GWTIME: 1 (2.8ms), GLDRIVE: 100mA, GGAIN: 1 (2x) 
+            self._write8(_APDS9960_GPULSE, 0x85) # GPULSE: 5 (6 pulses), GPLEN: 2 (16 us)
+            self._write8(_APDS9960_ATIME, 0xB6) # ATIME: 182 (200ms color integration time)
+            self._write8(_APDS9960_CONTROL, 0x01) # AGAIN: 1 (4x color gain), PGAIN: 0 (1x)
         
         self._reset_counts()
 
@@ -224,11 +237,11 @@ class APDS9960:
         return self._get_bit(_APDS9960_GSTATUS, _BIT_MASK_GSTATUS_GVALID)
 
     @property
-    def _proximity_persistance(self) -> int:
+    def _proximity_persistence(self) -> int:
         self._get_bits(_APDS9960_PERS, _BIT_POSITON_PERS_PPERS, _BIT_MASK_PERS_PPERS)
 
-    @_proximity_persistance.setter
-    def _proximity_persistance(self, value: int) -> None:
+    @_proximity_persistence.setter
+    def _proximity_persistence(self, value: int) -> None:
         self._set_bits(_APDS9960_PERS, _BIT_POSITON_PERS_PPERS, _BIT_MASK_PERS_PPERS, value)
 
     @property
@@ -380,6 +393,7 @@ class APDS9960:
 
         return gesture_received
 
+    ## COLOR
     @property
     def color_data_ready(self) -> int:
         """Color data ready flag.  zero if not ready, 1 is ready"""
@@ -395,18 +409,18 @@ class APDS9960:
             self._color_data16(_APDS9960_CDATAL),
         )
 
-    ### PROXIMITY
+    ## PROXIMITY
     @property
     def proximity_interrupt_threshold(self) -> Tuple[int, int, int]:
         """Tuple containing low and high threshold
-        followed by the proximity interrupt persistance.
+        followed by the proximity interrupt persistence.
         When setting the proximity interrupt threshold values using a tuple of
-        zero to three values: low threshold, high threshold, persistance.
-        persistance defaults to 4 if not provided"""
+        zero to three values: low threshold, high threshold, persistence.
+        persistence defaults to 4 if not provided"""
         return (
             self._read8(_APDS9960_PILT),
             self._read8(_APDS9960_PIHT),
-            self._proximity_persistance,
+            self._proximity_persistence,
         )
 
     @proximity_interrupt_threshold.setter
@@ -418,7 +432,7 @@ class APDS9960:
         persist = 4  # default 4
         if len(setting_tuple) > 2:
             persist = min(setting_tuple[2], 7)
-        self._proximity_persistance = persist
+        self._proximity_persistence = persist
 
     @property
     def proximity(self) -> int:
