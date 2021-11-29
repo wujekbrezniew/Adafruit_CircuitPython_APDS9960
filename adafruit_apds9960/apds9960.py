@@ -163,43 +163,6 @@ class APDS9960:
 
     """
 
-    # _gesture_enable = RWBit(_APDS9960_ENABLE, 6)
-
-    @property
-    def enable_gesture(self) -> bool:
-        return self._get_bit(_APDS9960_ENABLE, _BIT_MASK_ENABLE_GESTURE)
-
-    @enable_gesture.setter
-    def enable_gesture(self, value: bool) -> None:
-        self._set_bit(_APDS9960_ENABLE, _BIT_MASK_ENABLE_GESTURE, value)
-    
-    # _gesture_mode = RWBit(_APDS9960_GCONF4, 0)
-
-    @property
-    def _gesture_mode(self) -> bool:
-        return self._get_bit(_APDS9960_GCONF4, _BIT_MASK_GCONF4_GMODE)
-
-    @_gesture_mode.setter
-    def _gesture_mode(self, value: bool) -> None:
-        self._set_bit(_APDS9960_GCONF4, _BIT_MASK_GCONF4_GMODE, value)
-
-    # _gesture_valid = RWBit(_APDS9960_GSTATUS, 0)
-
-    @property
-    def _gesture_valid(self) -> bool:
-        return self._get_bit(_APDS9960_GSTATUS, _BIT_MASK_GSTATUS_GVALID)
-
-    # _proximity_persistance = RWBits(4, _APDS9960_PERS, 4)
-
-    @property
-    def _proximity_persistance(self) -> int:
-        self._get_bits(_APDS9960_PERS, _BIT_POSITON_PERS_PPERS, _BIT_MASK_PERS_PPERS)
-
-    @_proximity_persistance.setter
-    def _proximity_persistance(self, value: int) -> None:
-        self._set_bits(_APDS9960_PERS, _BIT_POSITON_PERS_PPERS, _BIT_MASK_PERS_PPERS, value)
-
-
     def __init__(
         self,
         i2c: I2C,
@@ -240,12 +203,33 @@ class APDS9960:
         self._reset_counts()
 
     ## BOARD
-    def _reset_counts(self) -> None:
-        """Gesture detection internal counts"""
-        self._saw_down_start = 0
-        self._saw_up_start = 0
-        self._saw_left_start = 0
-        self._saw_right_start = 0
+    @property
+    def enable_gesture(self) -> bool:
+        return self._get_bit(_APDS9960_ENABLE, _BIT_MASK_ENABLE_GESTURE)
+
+    @enable_gesture.setter
+    def enable_gesture(self, value: bool) -> None:
+        self._set_bit(_APDS9960_ENABLE, _BIT_MASK_ENABLE_GESTURE, value)
+
+    @property
+    def _gesture_mode(self) -> bool:
+        return self._get_bit(_APDS9960_GCONF4, _BIT_MASK_GCONF4_GMODE)
+
+    @_gesture_mode.setter
+    def _gesture_mode(self, value: bool) -> None:
+        self._set_bit(_APDS9960_GCONF4, _BIT_MASK_GCONF4_GMODE, value)
+
+    @property
+    def _gesture_valid(self) -> bool:
+        return self._get_bit(_APDS9960_GSTATUS, _BIT_MASK_GSTATUS_GVALID)
+
+    @property
+    def _proximity_persistance(self) -> int:
+        self._get_bits(_APDS9960_PERS, _BIT_POSITON_PERS_PPERS, _BIT_MASK_PERS_PPERS)
+
+    @_proximity_persistance.setter
+    def _proximity_persistance(self, value: int) -> None:
+        self._set_bits(_APDS9960_PERS, _BIT_POSITON_PERS_PPERS, _BIT_MASK_PERS_PPERS, value)
 
     @property
     def enable(self) -> bool:
@@ -299,6 +283,13 @@ class APDS9960:
             raise ValueError("Rotation value must be one of: 0, 90, 180, 270")
 
     ## GESTURE DETECTION
+    def _reset_counts(self) -> None:
+        """Gesture detection internal counts"""
+        self._saw_down_start = 0
+        self._saw_up_start = 0
+        self._saw_left_start = 0
+        self._saw_right_start = 0
+
     def gesture(self) -> int:  # pylint: disable-msg=too-many-branches
         """Returns gesture code if detected. =0 if no gesture detected
         =1 if an UP, =2 if a DOWN, =3 if an LEFT, =4 if a RIGHT
