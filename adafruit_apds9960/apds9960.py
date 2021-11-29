@@ -9,7 +9,7 @@
 Driver class for the APDS9960 board.  Supports gesture, proximity, and color
 detection.
 
-* Author(s): Michael McWethy
+* Author(s): Michael McWethy, Erik Hess
 
 Implementation Notes
 --------------------
@@ -116,7 +116,7 @@ _BIT_MASK_GCONF4_GFIFO_CLR = const(0x04)
 _BIT_POS_PERS_PPERS = const(4)
 _BIT_MASK_PERS_PPERS = const(0xF0)
 
-# pylint: disable-msg=too-many-instance-attributes
+
 class APDS9960:
     """
     Provide basic driver services for the APDS9960 breakout board
@@ -174,8 +174,10 @@ class APDS9960:
             raise RuntimeError()
 
         if reset:
-            # Disable sensor and all functions/interrupts
-            self._write8(_APDS9960_ENABLE, 0)
+            # Disable prox, gesture, and color engines
+            self.enable_proximity = False
+            self.enable_gesture = False
+            self.enable_color = False
 
             # Reset basic config registers to power-on defaults
             self.proximity_interrupt_threshold = (0, 0, 0)
@@ -194,14 +196,18 @@ class APDS9960:
             # Clear gesture FIFOs and interrupt
             self._set_bit(_APDS9960_GCONF4, _BIT_MASK_GCONF4_GFIFO_CLR, True)
 
-            # Enable sensor and wait 10ms for the power on delay to finish
+            # Disable sensor and all functions/interrupts
+            self._write8(_APDS9960_ENABLE, 0)
+            time.sleep(0.025)  # Sleeping could take at ~2-25 ms if engines were looping
+
+            # Re-enable sensor and wait 10ms for the power on delay to finish
             self.enable = True
             time.sleep(0.010)
 
         if set_defaults:
-            # Trigger PINT at >= 5, PPERS: 4 cycles
+            # Trigger proximity interrupt at >= 5, PPERS: 4 cycles
             self.proximity_interrupt_threshold = (0, 5, 4)
-            # Enter gesture engine at >= 5 counts
+            # Enter gesture engine at >= 5 proximity counts
             self._write8(_APDS9960_GPENTH, 0x05)
             # Exit gesture engine if all counts drop below 30
             self._write8(_APDS9960_GEXTH, 0x1E)
@@ -324,10 +330,7 @@ class APDS9960:
     def gesture(self) -> int:
         """Returns gesture code if detected.
         0 if no gesture detected
-        1 if up,
-        2 if down,
-        3 if left,
-        4 if right
+        1 = up, 2 = down, 3 = left, 4 = right
         """
         # If FIFOs have overflowed we're already way too late, so clear those FIFOs and wait
         if self._get_bit(_APDS9960_GSTATUS, _BIT_MASK_GSTATUS_GFOV):
@@ -479,7 +482,7 @@ class APDS9960:
     ## COLOR
     @property
     def color_data_ready(self) -> int:
-        """Color data ready flag.  zero if not ready, 1 is ready"""
+        """Color data ready flag.  Zero if not ready, 1 if ready"""
         return self._read8(_APDS9960_STATUS) & 0x01
 
     @property
