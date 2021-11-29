@@ -49,55 +49,55 @@ except ImportError:
 __version__ = "0.0.0-auto.0"
 __repo__ = "https://github.com/adafruit/Adafruit_CircuitPython_APDS9960.git"
 
-# ADDRESS_DEF = const(0x39)
-# INTEGRATION_TIME_DEF = const(0x01)
-# GAIN_DEF = const(0x01)
+# Only one address is possible for the APDS9960, no alternates are available
+_ADDRESS = const(0x39)
+_DEVICE_ID = const(0xAB)
 
 # APDS9960_RAM        = const(0x00)
 _APDS9960_ENABLE = const(0x80)
-# _APDS9960_ATIME = const(0x81)
-# APDS9960_WTIME      = const(0x83)
-# APDS9960_AILTIL     = const(0x84)
-# APDS9960_AILTH      = const(0x85)
-# APDS9960_AIHTL      = const(0x86)
-# APDS9960_AIHTH      = const(0x87)
+_APDS9960_ATIME = const(0x81)
+# _APDS9960_WTIME      = const(0x83)
+# _APDS9960_AILTIL     = const(0x84)
+# _APDS9960_AILTH      = const(0x85)
+# _APDS9960_AIHTL      = const(0x86)
+# _APDS9960_AIHTH      = const(0x87)
 _APDS9960_PILT = const(0x89)
 _APDS9960_PIHT = const(0x8B)
 _APDS9960_PERS = const(0x8C)
-# APDS9960_CONFIG1    = const(0x8D)
-# APDS9960_PPULSE     = const(0x8E)
-# _APDS9960_CONTROL = const(0x8F)
-# APDS9960_CONFIG2    = const(0x90)
+# _APDS9960_CONFIG1    = const(0x8D)
+# _APDS9960_PPULSE = const(0x8E)
+_APDS9960_CONTROL = const(0x8F)
+# _APDS9960_CONFIG2 = const(0x90)
 _APDS9960_ID = const(0x92)
 _APDS9960_STATUS = const(0x93)
 _APDS9960_CDATAL = const(0x94)
-# APDS9960_CDATAH     = const(0x95)
-# APDS9960_RDATAL     = const(0x96)
-# APDS9960_RDATAH     = const(0x97)
-# APDS9960_GDATAL     = const(0x98)
-# APDS9960_GDATAH     = const(0x99)
-# APDS9960_BDATAL     = const(0x9A)
-# APDS9960_BDATAH     = const(0x9B)
+# _APDS9960_CDATAH     = const(0x95)
+# _APDS9960_RDATAL     = const(0x96)
+# _APDS9960_RDATAH     = const(0x97)
+# _APDS9960_GDATAL     = const(0x98)
+# _APDS9960_GDATAH     = const(0x99)
+# _APDS9960_BDATAL     = const(0x9A)
+# _APDS9960_BDATAH     = const(0x9B)
 _APDS9960_PDATA = const(0x9C)
-# APDS9960_POFFSET_UR = const(0x9D)
-# APDS9960_POFFSET_DL = const(0x9E)
-# APDS9960_CONFIG3    = const(0x9F)
-# _APDS9960_GPENTH = const(0xA0)
-# APDS9960_GEXTH      = const(0xA1)
+# _APDS9960_POFFSET_UR = const(0x9D)
+# _APDS9960_POFFSET_DL = const(0x9E)
+# _APDS9960_CONFIG3    = const(0x9F)
+_APDS9960_GPENTH = const(0xA0)
+_APDS9960_GEXTH = const(0xA1)
 _APDS9960_GCONF1 = const(0xA2)
 _APDS9960_GCONF2 = const(0xA3)
-# APDS9960_GOFFSET_U  = const(0xA4)
-# APDS9960_GOFFSET_D  = const(0xA5)
-# APDS9960_GOFFSET_L  = const(0xA7)
-# APDS9960_GOFFSET_R  = const(0xA9)
+# _APDS9960_GOFFSET_U  = const(0xA4)
+# _APDS9960_GOFFSET_D  = const(0xA5)
+# _APDS9960_GOFFSET_L  = const(0xA7)
+# _APDS9960_GOFFSET_R  = const(0xA9)
 _APDS9960_GPULSE = const(0xA6)
 # _APDS9960_GCONF3 = const(0xAA)
 _APDS9960_GCONF4 = const(0xAB)
 _APDS9960_GFLVL = const(0xAE)
 _APDS9960_GSTATUS = const(0xAF)
-# APDS9960_IFORCE     = const(0xE4)
-# APDS9960_PICLEAR    = const(0xE5)
-# APDS9960_CICLEAR    = const(0xE6)
+# _APDS9960_IFORCE     = const(0xE4)
+# _APDS9960_PICLEAR    = const(0xE5)
+# _APDS9960_CICLEAR    = const(0xE6)
 _APDS9960_AICLEAR = const(0xE7)
 _APDS9960_GFIFO_U = const(0xFC)
 # APDS9960_GFIFO_D    = const(0xFD)
@@ -105,10 +105,10 @@ _APDS9960_GFIFO_U = const(0xFC)
 # APDS9960_GFIFO_R    = const(0xFF)
 
 _BIT_MASK_ENABLE_EN = const(0x01)
-_BIT_MASK_ENABLE_PROX = const(0x04)
-_BIT_MASK_ENABLE_PROX_INT = const(0x10)
-_BIT_MASK_ENABLE_GESTURE = const(0x20)
 _BIT_MASK_ENABLE_COLOR = const(0x02)
+_BIT_MASK_ENABLE_PROX = const(0x04)
+_BIT_MASK_ENABLE_PROX_INT = const(0x20)
+_BIT_MASK_ENABLE_GESTURE = const(0x40)
 
 _BIT_MASK_GSTATUS_GVALID = const(0x01)
 
@@ -117,11 +117,11 @@ _BIT_MASK_GCONF4_GMODE = const(0x01)
 _BIT_POSITON_PERS_PPERS = const(4)
 _BIT_MASK_PERS_PPERS = const(0xF0)
 
-_BIT_POSITON_GCONF1_GFIFOTH = const(6)
-_BIT_MASK_GCONF1_GFIFOTH = const(0xC0)
+# _BIT_POSITON_GCONF1_GFIFOTH = const(6)
+# _BIT_MASK_GCONF1_GFIFOTH = const(0xC0)
 
-_BIT_POSITON_GCONF2_GGAIN = const(5)
-_BIT_MASK_GCONF2_GGAIN = const(0x60)
+# _BIT_POSITON_GCONF2_GGAIN = const(5)
+# _BIT_MASK_GCONF2_GGAIN = const(0x60)
 
 # _BIT_POSITON_CONTROL_AGAIN = const(0)
 # _BIT_MASK_CONTROL_AGAIN = const(0x03)
@@ -204,42 +204,40 @@ class APDS9960:
         self,
         i2c: I2C,
         *,
-        address: int = 0x39,
-        # integration_time: int = 0x01,
-        # gain: int = 0x01,
-        rotation: int = 0
+        rotation: int = 0,
+        reset: bool = True,
+        set_defaults: bool = True
     ):
+        
+        self.rotation = rotation
 
         self.buf129 = None
         self.buf2 = bytearray(2)
 
-        self.i2c_device = I2CDevice(i2c, address)
+        self.i2c_device = I2CDevice(i2c, _ADDRESS)
 
-        if self._read8(_APDS9960_ID) != 0xAB:
+        if self._read8(_APDS9960_ID) != _DEVICE_ID:
             raise RuntimeError()
 
-        self.enable_gesture = False
-        self.enable_proximity = False
-        self.enable_color = False
-        self._rotation = rotation
-        self.enable_proximity_interrupt = False
-        self.clear_interrupt()
+        if reset:
+            self._write8(_APDS9960_ENABLE, 0) # Disable sensor and all functions/interrupts
+            self.clear_interrupt()
 
-        self.enable = False
-        time.sleep(0.010)
-        self.enable = True
-        time.sleep(0.010)
+            self.enable = True
+            time.sleep(0.010) # Wait for PON delay to clear before proceeding
 
-        # self.color_gain = gain
-        # self.integration_time = integration_time
-        # self.gesture_dimensions = 0x00  # all
-        self.gesture_fifo_threshold = 0x01  # fifo 4
-        self.gesture_gain = 0x02  # gain 4
-        # self.gesture_proximity_threshold = 50
+        if set_defaults:
+            self._write8(_APDS9960_PIHT, 5) # Trigger PINT at >= 5 counts
+            self._write8(_APDS9960_PERS, 80) # PPERS: 5 cycles, APERS: 0 cycles
+            self._write8(_APDS9960_ATIME, 182) # ATIME: 182 (200ms color integration time)
+            self._write8(_APDS9960_CONTROL, 1) # AGAIN: 1 (4x color gain)
+            self._write8(_APDS9960_GPENTH, 5) # Trigger gesture engine at >= 5 counts of proximity
+            self._write8(_APDS9960_GEXTH, 30) # Exit gesture loop if all counts drop below 30
+            self._write8(_APDS9960_GCONF1, 2) # GEXPERS: 4 cycles, GEXMSK: 0, GFIFOTH: 0 datasets
+            self._write8(_APDS9960_GCONF2, 33) # GWTIME: 1 (2.8ms), GLDRIVE: 100mA, GGAIN: 1 (2x) 
+            self._write8(_APDS9960_GPULSE, 133) # GPULSE: 5 pulses, GPLEN: 16 us
+        
         self._reset_counts()
-
-        # gesture pulse length=0x2 pulse count=0x3
-        self._write8(_APDS9960_GPULSE, (0x2 << 6) | 0x3)
 
     ## BOARD
     def _reset_counts(self) -> None:
@@ -249,8 +247,6 @@ class APDS9960:
         self._saw_left_start = 0
         self._saw_right_start = 0
 
-    # enable = RWBit(_APDS9960_ENABLE, 0)
-
     @property
     def enable(self) -> bool:
         return self._get_bit(_APDS9960_ENABLE, _BIT_MASK_ENABLE_EN)
@@ -259,8 +255,6 @@ class APDS9960:
     def enable(self, value: bool) -> None:
         """Board enable.  True to enable, False to disable"""
         self._set_bit(_APDS9960_ENABLE, _BIT_MASK_ENABLE_EN, value)
-
-    # enable_color = RWBit(_APDS9960_ENABLE, 1)
 
     @property
     def enable_color(self) -> bool:
@@ -272,8 +266,6 @@ class APDS9960:
             True when color detection is enabled, else False"""
         self._set_bit(_APDS9960_ENABLE, _BIT_MASK_ENABLE_COLOR, value)
 
-    # enable_proximity = RWBit(_APDS9960_ENABLE, 2)
-
     @property
     def enable_proximity(self) -> bool:
         return self._get_bit(_APDS9960_ENABLE, _BIT_MASK_ENABLE_PROX)
@@ -282,41 +274,6 @@ class APDS9960:
     def enable_proximity(self, value: bool) -> None:
         """Enable of proximity mode"""
         self._set_bit(_APDS9960_ENABLE, _BIT_MASK_ENABLE_PROX, value)
-
-    # gesture_fifo_threshold = RWBits(2, _APDS9960_GCONF1, 6)
-
-    @property
-    def gesture_fifo_threshold(self) -> int:
-        self._get_bits(_APDS9960_GCONF1, _BIT_POSITON_GCONF1_GFIFOTH, _BIT_MASK_GCONF1_GFIFOTH)
-
-    @gesture_fifo_threshold.setter
-    def gesture_fifo_threshold(self, value: int) -> None:
-        """Gesture fifo threshold value: range 0-3"""
-        self._set_bits(_APDS9960_GCONF1, _BIT_POSITON_GCONF1_GFIFOTH, _BIT_MASK_GCONF1_GFIFOTH, value)
-
-    # gesture_gain = RWBits(2, _APDS9960_GCONF2, 5)
-
-    @property
-    def gesture_gain(self) -> int:
-        self._get_bits(_APDS9960_GCONF2, _BIT_POSITON_GCONF2_GGAIN, _BIT_MASK_GCONF2_GGAIN)
-
-    @gesture_gain.setter
-    def gesture_gain(self, value: int) -> None:
-        """Gesture gain value: range 0-3"""
-        self._set_bits(_APDS9960_GCONF2, _BIT_POSITON_GCONF2_GGAIN, _BIT_MASK_GCONF2_GGAIN, value)
-
-    # color_gain = RWBits(2, _APDS9960_CONTROL, 0)
-
-    # @property
-    # def color_gain(self) -> int:
-    #     self._get_bits(_APDS9960_CONTROL, _BIT_POSITON_CONTROL_AGAIN, _BIT_MASK_CONTROL_AGAIN)
-
-    # @gesture_gain.setter
-    # def color_gain(self, value: int) -> None:
-    #     """Color gain value"""
-    #     self._set_bits(_APDS9960_CONTROL, _BIT_POSITON_CONTROL_AGAIN, _BIT_MASK_CONTROL_AGAIN, value)
-
-    # enable_proximity_interrupt = RWBit(_APDS9960_ENABLE, 5)
 
     @property
     def enable_proximity_interrupt(self) -> bool:
@@ -342,24 +299,6 @@ class APDS9960:
             raise ValueError("Rotation value must be one of: 0, 90, 180, 270")
 
     ## GESTURE DETECTION
-    # @property
-    # def enable_gesture(self) -> bool:
-    #     """Gesture detection enable flag. True to enable, False to disable.
-    #     Note that when disabled, gesture mode is turned off"""
-    #     return self._gesture_enable
-
-    # @enable_gesture.setter
-    # def enable_gesture(self, enable_flag: bool) -> None:
-    #     if not enable_flag:
-    #         self._gesture_mode = False
-    #     self._gesture_enable = enable_flag
-
-    # def rotated_gesture(self, original_gesture: int) -> int:
-    #     """Applies rotation offset to the given gesture direction and returns the result"""
-    #     directions = [1, 4, 2, 3]
-    #     new_index = (directions.index(original_gesture) + self._rotation // 90) % 4
-    #     return directions[new_index]
-
     def gesture(self) -> int:  # pylint: disable-msg=too-many-branches
         """Returns gesture code if detected. =0 if no gesture detected
         =1 if an UP, =2 if a DOWN, =3 if an LEFT, =4 if a RIGHT
@@ -450,15 +389,6 @@ class APDS9960:
 
         return gesture_received
 
-    # @property
-    # def gesture_dimensions(self) -> int:
-    #     """Gesture dimension value: range 0-3"""
-    #     return self._read8(_APDS9960_GCONF3)
-
-    # @gesture_dimensions.setter
-    # def gesture_dimensions(self, dims: int) -> None:
-    #     self._write8(_APDS9960_GCONF3, dims & 0x03)
-
     @property
     def color_data_ready(self) -> int:
         """Color data ready flag.  zero if not ready, 1 is ready"""
@@ -499,15 +429,6 @@ class APDS9960:
             persist = min(setting_tuple[2], 7)
         self._proximity_persistance = persist
 
-    # @property
-    # def gesture_proximity_threshold(self) -> int:
-    #     """Proximity threshold value: range 0-255"""
-    #     return self._read8(_APDS9960_GPENTH)
-
-    # @gesture_proximity_threshold.setter
-    # def gesture_proximity_threshold(self, thresh: int) -> None:
-    #     self._write8(_APDS9960_GPENTH, thresh & 0xFF)
-
     @property
     def proximity(self) -> int:
         """Proximity value: range 0-255"""
@@ -516,15 +437,6 @@ class APDS9960:
     def clear_interrupt(self) -> None:
         """Clear all interrupts"""
         self._writecmdonly(_APDS9960_AICLEAR)
-
-    # @property
-    # def integration_time(self) -> int:
-    #     """Proximity integration time: range 0-255"""
-    #     return self._read8(_APDS9960_ATIME)
-
-    # @integration_time.setter
-    # def integration_time(self, int_time: int) -> None:
-    #     self._write8(_APDS9960_ATIME, int_time & 0xFF)
 
     # method for reading and writing to I2C
     def _write8(self, command: int, abyte: int) -> None:
@@ -555,7 +467,7 @@ class APDS9960:
         buf[0] = register
         with self.i2c_device as i2c:
             i2c.write_then_readinto(buf, buf, out_end=1, in_start=1)
-        return (buf[1] & bitmask)
+        return bool(buf[1] & bitmask)
 
     def _set_bit(self, register: int, bitmask: int, value: bool) -> None:
         buf = self.buf2
@@ -565,9 +477,9 @@ class APDS9960:
         if value:
             buf[1] |= bitmask
         else:
-            buf[1] &= bitmask
+            buf[1] &= ~bitmask
         with self.i2c_device as i2c:
-            i2c.write(buf, end=1)
+            i2c.write(buf, end=2)
 
     def _get_bits(self, register: int, bit_position: int, bit_mask: int) -> int:
         buf = self.buf2
@@ -583,7 +495,7 @@ class APDS9960:
             i2c.write_then_readinto(buf, buf, out_end=1, in_start=1)
         buf[1] = (buf[1] & ~bit_mask) | (value << bit_position)
         with self.i2c_device as i2c:
-            i2c.write(buf, end=1)
+            i2c.write(buf, end=2)
         
     def _color_data16(self, command: int) -> int:
         """Sends a command and reads 2 bytes of data from the I2C device
