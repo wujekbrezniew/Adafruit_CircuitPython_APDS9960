@@ -117,7 +117,10 @@ _BIT_MASK_GCONF4_GFIFO_CLR = const(0x04)
 _BIT_POS_PERS_PPERS = const(4)
 _BIT_MASK_PERS_PPERS = const(0xF0)
 
+_BIT_POS_CONTROL_AGAIN = const(0)
+_BIT_MASK_CONTROL_AGAIN = const(3)
 
+# pylint: disable-msg=too-many-instance-attributes
 class APDS9960:
     """
     Provide basic driver services for the APDS9960 breakout board
@@ -218,10 +221,10 @@ class APDS9960:
             self._write8(_APDS9960_GCONF2, 0x41)
             # GPULSE: 5 (6 pulses), GPLEN: 2 (16 us)
             self._write8(_APDS9960_GPULSE, 0x85)
-            # ATIME: 255 (712ms color integration time, max count of 65535)
-            self._write8(_APDS9960_ATIME, 0x00)
-            # AGAIN: 1 (4x color gain), PGAIN: 0 (1x) (default), LDRIVE: 0 (100 mA) (default)
-            self._write8(_APDS9960_CONTROL, 0x01)
+            # ATIME: 256 (712ms color integration time, max count of 65535)
+            self.color_integration_time = 256
+            # AGAIN: 1 (4x color gain)
+            self.color_gain = 1
 
     ## BOARD
     @property
@@ -327,6 +330,53 @@ class APDS9960:
 
         This flag is reset when `color_data` is read."""
         return self._get_bit(_APDS9960_STATUS, _BIT_MASK_STATUS_AVALID)
+
+    @property
+    def color_gain(self) -> int:
+        """Color/light sensor gain value.
+
+        This sets the gain multiplier for the ADC during color/light engine operations.
+
+        .. csv-table::
+           :header: "``color_gain``", "Gain Multiplier", "Note"
+
+           0, "1x", "Power-on Default"
+           1, "4x", "Driver Default"
+           2, "16x", ""
+           3, "64x", ""
+        """
+        return self._get_bits(
+            _APDS9960_CONTROL, _BIT_POS_CONTROL_AGAIN, _BIT_MASK_CONTROL_AGAIN
+        )
+
+    @color_gain.setter
+    def color_gain(self, value: int) -> None:
+        self._set_bits(
+            _APDS9960_CONTROL, _BIT_POS_CONTROL_AGAIN, _BIT_MASK_CONTROL_AGAIN, value
+        )
+
+    @property
+    def color_integration_time(self) -> int:
+        """Color/light sensor gain.
+
+        Represents the integration time in number of 2.78 ms cycles for the ADC during color/light
+        engine operations. This also effectively sets the maxmium value returned for each channel
+        by `color_data`.
+
+        .. csv-table::
+           :header: "``color_integration_time``", "Time", "Max Count", "Note"
+
+           1, "2.78 ms", 1025, "Power-on Default"
+           10, "27.8 ms", 10241, ""
+           37, "103 ms", 37889, ""
+           72, "200 ms", 65535, "Driver Default"
+           256, "712 ms", 65535, ""
+        """
+        return 256 - self._read8(_APDS9960_ATIME)
+
+    @color_integration_time.setter
+    def color_integration_time(self, value: int) -> None:
+        self._write8(_APDS9960_ATIME, 256 - value)
 
     ## PROXIMITY
     @property
