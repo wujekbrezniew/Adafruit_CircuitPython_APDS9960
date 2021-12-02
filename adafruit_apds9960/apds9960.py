@@ -109,6 +109,7 @@ _BIT_MASK_ENABLE_COLOR = const(0x02)
 _BIT_MASK_ENABLE_PROX = const(0x04)
 _BIT_MASK_ENABLE_PROX_INT = const(0x20)
 _BIT_MASK_ENABLE_GESTURE = const(0x40)
+_BIT_MASK_STATUS_AVALID = const(0x01)
 _BIT_MASK_STATUS_GINT = const(0x04)
 _BIT_MASK_GSTATUS_GFOV = const(0x02)
 _BIT_MASK_GCONF4_GFIFO_CLR = const(0x04)
@@ -217,9 +218,9 @@ class APDS9960:
             self._write8(_APDS9960_GCONF2, 0x41)
             # GPULSE: 5 (6 pulses), GPLEN: 2 (16 us)
             self._write8(_APDS9960_GPULSE, 0x85)
-            # ATIME: 182 (200ms color integration time)
-            self._write8(_APDS9960_ATIME, 0xB6)
-            # AGAIN: 1 (4x color gain), PGAIN: 0 (1x)
+            # ATIME: 255 (712ms color integration time, max count of 65535)
+            self._write8(_APDS9960_ATIME, 0x00)
+            # AGAIN: 1 (4x color gain), PGAIN: 0 (1x) (default), LDRIVE: 0 (100 mA) (default)
             self._write8(_APDS9960_CONTROL, 0x01)
 
     ## BOARD
@@ -317,6 +318,15 @@ class APDS9960:
     def enable_color(self, value: bool) -> None:
         """If true, the sensor's color/light engine is enabled"""
         self._set_bit(_APDS9960_ENABLE, _BIT_MASK_ENABLE_COLOR, value)
+
+    @property
+    def color_data_ready(self) -> int:
+        """Color data ready flag.
+
+        Returns ``0`` if no new data is ready, ``1`` if new data is ready.
+
+        This flag is reset when `color_data` is read."""
+        return self._get_bit(_APDS9960_STATUS, _BIT_MASK_STATUS_AVALID)
 
     ## PROXIMITY
     @property
@@ -481,13 +491,16 @@ class APDS9960:
 
     ## COLOR
     @property
-    def color_data_ready(self) -> int:
-        """Color data ready flag.  Zero if not ready, 1 if ready"""
-        return self._read8(_APDS9960_STATUS) & 0x01
-
-    @property
     def color_data(self) -> Tuple[int, int, int, int]:
-        """Tuple containing r, g, b, c values"""
+        """Tuple containing red, green, blue, and clear light intensity values detected by the
+        sensor during the latest color/light engine run.
+
+        Each value is a 16-bit integer with a possible value of ``0`` to ``65535``.
+
+        .. hint:: Testing with and tuning `color_gain` and `color_integration_time` values will
+           likely be required to get useful color results. Optimum values for these will depend
+           largely on the implementation details such as sensor positioning, illumination intensity
+           and color temperature, reflectivity of the object(s) being measured, etc."""
         return (
             self._color_data16(_APDS9960_CDATAL + 2),
             self._color_data16(_APDS9960_CDATAL + 4),
