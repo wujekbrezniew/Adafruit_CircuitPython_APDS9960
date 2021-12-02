@@ -19,13 +19,13 @@ Implementation Notes
 * Adafruit `APDS9960 Proximity, Light, RGB, and Gesture Sensor
   <https://www.adafruit.com/product/3595>`_ (Product ID: 3595)
 
-* Adafruit `Adafruit CLUE
+* Adafruit `CLUE
   <https://www.adafruit.com/product/4500>`_ (Product ID: 4500)
 
-* Adafruit `Adafruit Feather nRF52840 Sense
+* Adafruit `Feather nRF52840 Sense
   <https://www.adafruit.com/product/4516>`_ (Product ID: 4516)
 
-* Adafruit `Adafruit Proximity Trinkey
+* Adafruit `Proximity Trinkey
   <https://www.adafruit.com/product/5022>`_ (Product ID: 5022)
 
 **Software and Dependencies:**
@@ -148,13 +148,16 @@ class APDS9960:
             i2c = board.I2C()   # uses board.SCL and board.SDA
             apds = APDS9960(i2c)
 
-        Now you have access to the :attr:`apds.proximity_enable` :attr:`apds.proximity` attributes
+        Now you have access to the :attr:`apds.proximity_enable` and :attr:`apds.proximity`
+        attributes
 
         .. code-block:: python
 
             apds.proximity_enable = True
             proximity = apds.proximity
 
+        .. note:: There is no ``address`` argument because the APDS-9960 only has one address and
+           doesn't offer any option to configure alternative addresses.
     """
 
     def __init__(
@@ -168,8 +171,8 @@ class APDS9960:
 
         self.rotation = rotation
 
-        self.buf129 = None  # Gesture FIFO buffer
-        self.buf4 = None  # Gesture data processing buffer
+        self.buf129 = None  # Gesture FIFO buffer, only instantiated if needed
+        self.buf4 = None  # Gesture data processing buffer, only instantiated if needed
         self.buf2 = bytearray(2)  # I2C communication buffer
 
         self.i2c_device = I2CDevice(i2c, _APDS9960_I2C_ADDRESS)
@@ -229,40 +232,125 @@ class APDS9960:
     ## BOARD
     @property
     def enable(self) -> bool:
-        """If true, the sensor is enabled
-        If set to false, the sensor will enter a low-power sleep state"""
+        """If ``True``, the sensor is enabled.
+
+        If set to ``False``, the sensor will enter a low-power sleep state
+
+        When enabled, the sensor's state machine will run through the following steps in sequence,
+        repeating from the top after all states are run through.
+
+        #. **Idle State**
+
+            - Will only remain in this state if all three sense engines are disabled.
+
+        #. **Proximity Engine** *(if enabled)*
+
+            - Will only run if `enable_proximity` is ``True``.
+            - Will run once, storing fresh data in the sensor's proximity data registers. If
+              proximity data is is lower than or exceeds the configured proximity thresholds an
+              internal persistence is incremented on each run as well.
+
+        #. **Gesture Engine** *(if enabled)*
+
+            - Will only run if `enable_gesture` is ``True`` and if entry threshold of `proximity`
+              is greater or equal to the gesture proximity entry threshold of 5 counts.
+            - Will continuously loop, storing new results in the sensor's gesture FIFO buffers,
+              until one of four conditions occur.
+
+                - Exit threshold is met. *(all gesture measurements <= 30 counts)*
+                - The gesture engine or sensor are disabled. *(`enable_gesture` or `enable`
+                  properties are set to ``False``)*
+                - The sensor is re-initalized by the driver
+                - The sensor is power cycled
+
+        #. **Wait Timer** *(set to 0 by default)*
+
+            - This driver does not set or make available the ``WAIT`` or ``WLONG`` registers that
+              control this function and, on intialization, leaves the timer at its power-on default
+              state of ``0``, effectively disabling this timer.
+
+        #. **Color/Light Engine** *(if enabled)*
+
+            - Will run start if `enable_color` is ``True``.
+            - Will run once, storing fresh data in the sensor's color data registers on each run.
+
+        .. note:: Waking the sensor from its sleep state takes at least 7 ms. Disabling the sensor
+           and entering a sleep state can take as little as 2.78 ms, more typically about 25 ms, or
+           potentially quite a bit longer depending on what engines were enabled and what state was
+           active at the time the disable command was received.
+
+        .. hint:: When in a sleep state the sensor's power usage drops to as little as 1-10 uA,
+           compared as much as 790 uA of power usage when enabled with proximity and/or gesture
+           engines running. While in a sleep state, the sensor will still listen for and respond
+           to I2C communication which can lead to minor increases in power usage.
+        """
         return self._get_bit(_APDS9960_ENABLE, _BIT_MASK_ENABLE_EN)
 
     @enable.setter
     def enable(self, value: bool) -> None:
-        """If true, the sensor is enabled
-        If set to false, the sensor will enter a low-power sleep state"""
         self._set_bit(_APDS9960_ENABLE, _BIT_MASK_ENABLE_EN, value)
 
     ## Proximity Properties
     @property
     def enable_proximity(self) -> bool:
-        """If true, the sensor's proximity engine is enabled"""
+        """If ``True``, the sensor's proximity engine is enabled."""
         return self._get_bit(_APDS9960_ENABLE, _BIT_MASK_ENABLE_PROX)
 
     @enable_proximity.setter
     def enable_proximity(self, value: bool) -> None:
-        """If true, the sensor's proximity engine is enabled"""
         self._set_bit(_APDS9960_ENABLE, _BIT_MASK_ENABLE_PROX, value)
 
     @property
     def enable_proximity_interrupt(self) -> bool:
-        """If true, internal proximity interrupts assert interrupt pin"""
+        """If ``True``, the internal proximity interrupt asserts the sensor's interrupt pin.
+
+        Internal proximity interrupt triggering is configured via `proximity_interrupt_threshold`.
+
+        .. tip:: Using this interrupt will require attaching the sensor's ``INT`` pin to an
+           available digital I/O with an internal or external pull-up resistor.
+
+           For boards with built-in sensors the pin is likely already mapped within ``board``.
+
+            .. csv-table::
+               :header: "Board", "Pin Mapping"
+
+               "CLUE", "``board.PROXIMITY_LIGHT_INTERRUPT``"
+               "Feather nRF52840 Sense", "``board.PROXIMITY_LIGHT_INTERRUPT``"
+               "Proximity Trinkey", "``board.INTERRUPT``"
+        """
         return self._get_bit(_APDS9960_ENABLE, _BIT_MASK_ENABLE_PROX_INT)
 
     @enable_proximity_interrupt.setter
     def enable_proximity_interrupt(self, value: bool) -> None:
-        """If true, internal proximity interrupts assert interrupt pin"""
         self._set_bit(_APDS9960_ENABLE, _BIT_MASK_ENABLE_PROX_INT, value)
 
     @property
     def proximity_interrupt_threshold(self) -> Tuple[int, int, int]:
-        """Tuple representing proximity engine low/high threshold (0-255) and persistence (0-15)"""
+        """Tuple representing proximity engine low/high threshold and persistence, which determine
+        when the sensor's proximity interrupt is asserted.
+
+        1. Low Threshold (``PILT``)
+        2. High Threshold (``PIHT``) *(optional)*
+        3. Proximity Persistence (``PERS<PPERS>``) *(optional)*
+
+        The first two items are the "low threshold" and "high threshold" values. These can be set
+        to any number between ``0`` and ``255``. If the proximity value is lower than the low
+        threshold or higher than the high threshold for enough cycles, an interrupt will be
+        asserted.
+
+        The third item is the "persistence" value. This can be set to any value between ``0`` to
+        ``15``. This represents the number of 2.78 ms out-of-threshold cycles to wait for before
+        asserting the interrupt. This is basically a filter to prevent premature/false interrupts.
+
+        .. hint:: For example, setting a low threshold of ``0`` and a high threshold of ``5`` will
+           cause the interrupt to be asserted very early when an object **enters the sensor's line
+           of sight**. Coversely, a low threshold of ``5`` and a high threshold of ``255`` will
+           trigger an interrupt only if an object **is removed from the sensor's line of sight**.
+
+        .. hint:: Tuning the persistence value can be useful in some use cases but for most
+           situations the driver's default value of 4 should provide for stable results without
+           much delay in interrupt triggering.
+        """
         return (
             self._read8(_APDS9960_PILT),
             self._read8(_APDS9960_PIHT),
@@ -271,41 +359,64 @@ class APDS9960:
 
     @proximity_interrupt_threshold.setter
     def proximity_interrupt_threshold(self, setting_tuple: Tuple[int, ...]) -> None:
-        """Tuple representing proximity engine low/high threshold (0-255) and persistence (0-15)"""
-        if setting_tuple:
+        if setting_tuple and 0 <= setting_tuple[0] <= 255:
             self._write8(_APDS9960_PILT, setting_tuple[0])
-        if len(setting_tuple) > 1:
+        if len(setting_tuple) > 1 and 0 <= setting_tuple[0] <= 255:
             self._write8(_APDS9960_PIHT, setting_tuple[1])
         persist = 4  # default 4
-        if len(setting_tuple) > 2:
+        if len(setting_tuple) > 2 and 0 <= setting_tuple[0] <= 15:
             persist = min(setting_tuple[2], 15)
             self._set_bits(
                 _APDS9960_PERS, _BIT_POS_PERS_PPERS, _BIT_MASK_PERS_PPERS, persist
             )
 
     def clear_interrupt(self) -> None:
-        """Clear all non-gesture interrupts"""
+        """Clears all non-gesture interrupts.
+
+        This includes all of the following internal interrupts:
+
+        * **Proximity Interrupt** (``PINT``)
+        * **Proximity Saturation Interrupt** (``STATUS<PGSAT>``)
+        * **Color/Light Interrupt** (``STATUS<AINT>``)
+        * **Color/Light Clear Saturation Interrupt** (``STATUS<CPSAT>``)
+        """
         self._writecmdonly(_APDS9960_AICLEAR)
 
     ## Gesture Properties
     @property
     def enable_gesture(self) -> bool:
-        """If true, the sensor's gesture engine is enabled"""
+        """If ``True``, the sensor's gesture engine is enabled.
+
+        .. note:: The gesture engine will only operate if `enable_proximity` is also set to ``True``
+        """
         return self._get_bit(_APDS9960_ENABLE, _BIT_MASK_ENABLE_GESTURE)
 
     @enable_gesture.setter
     def enable_gesture(self, value: bool) -> None:
-        """If true, the sensor's gesture engine is enabled"""
         self._set_bit(_APDS9960_ENABLE, _BIT_MASK_ENABLE_GESTURE, value)
 
     @property
     def rotation(self) -> int:
-        """Gesture rotation offset. Acceptable values are 0, 90, 180, 270."""
+        """Clock-wise offset to apply to gesture results.
+
+        Acceptable values are ``0``, ``90``, ``180``, ``270``.
+
+        .. tip:: The sensor's "top" end is the one with the larger of the two circular windows.
+
+            Some rotation examples for various boards with the APS-9960 built in:
+
+            .. csv-table::
+               :header: "Board", "Rotation"
+
+               "CLUE", 270
+               "Feather nRF52840 Sense, with USB port to the left", 270
+               "Proximity Trinkey, plugged into right-side laptop USB port", 270
+               "Proximity Trinkey, plugged into left-side laptop USB port", 90
+        """
         return self._rotation
 
     @rotation.setter
     def rotation(self, new_rotation: int) -> None:
-        """Gesture rotation offset. Acceptable values are 0, 90, 180, 270."""
         if new_rotation in [0, 90, 180, 270]:
             self._rotation = new_rotation
         else:
@@ -314,12 +425,11 @@ class APDS9960:
     ## Color/Light Properties
     @property
     def enable_color(self) -> bool:
-        """If true, the sensor's color/light engine is enabled"""
+        """If ``True``, the sensor's color/light engine is enabled"""
         return self._get_bit(_APDS9960_ENABLE, _BIT_MASK_ENABLE_COLOR)
 
     @enable_color.setter
     def enable_color(self, value: bool) -> None:
-        """If true, the sensor's color/light engine is enabled"""
         self._set_bit(_APDS9960_ENABLE, _BIT_MASK_ENABLE_COLOR, value)
 
     @property
@@ -344,7 +454,20 @@ class APDS9960:
            1, "4x", "Driver Default"
            2, "16x", ""
            3, "64x", ""
-        """
+
+        .. tip:: To get useful, predictable `color_data` results it is important to tune this,
+           along with `color_integration_time`, to accommodate different lighting conditions, sensor
+           placements, material transparencies, expected object reflectivity, and environmental
+           conditions.
+
+           For instance, measuring color of objects close to the sensor with bright, nearby
+           illumination (such as the white LEDs on the `Adafruit CLUE
+           <https://www.adafruit.com/product/4500>`_) may work well with a `color_gain` of ``0``
+           and a `color_integration_time` of ``72`` or lower.
+
+           However, measuring the intensity and color temperature of ambient light through
+           difusion glass or plastic is likely to require experimenting with a wide range of
+           integration time and gain settings before useful data can be obtained."""
         return self._get_bits(
             _APDS9960_CONTROL, _BIT_POS_CONTROL_AGAIN, _BIT_MASK_CONTROL_AGAIN
         )
@@ -369,8 +492,8 @@ class APDS9960:
            1, "2.78 ms", 1025, "Power-on Default"
            10, "27.8 ms", 10241, ""
            37, "103 ms", 37889, ""
-           72, "200 ms", 65535, "Driver Default"
-           256, "712 ms", 65535, ""
+           72, "200 ms", 65535, ""
+           256, "712 ms", 65535, "Driver Default"
         """
         return 256 - self._read8(_APDS9960_ATIME)
 
@@ -381,17 +504,84 @@ class APDS9960:
     ## PROXIMITY
     @property
     def proximity(self) -> int:
-        """Proximity value: 0-255
-        lower values are farther, higher values are closer"""
+        """Proximity sensor data.
+
+        The proximity engine returns a number between ``0`` and ``255`` which represents the
+        intensity of the reflected IR light detected from the sensor's internal LEDs, which pulse
+        continously during proximity engine operation.
+
+        A value of ``0`` indicates no reflected IR light was received. This typically indicates
+        that no object(s) were in the sensor's line of sight and within detectable range of its IR
+        LED pulses.
+
+        A value of ``255`` indicates that the maximum detectable amount of reflected IR light was
+        received. This typically indicates that an object was detected very close to the sensor.
+
+        .. caution:: Will always return ``0`` if `enable_proximity` is not set ``True``.
+
+        .. note:: The sensor itself offers a very wide variety of configuration options for tuning
+           the proximity engine, such as the LEDs (pulse count/length, drive power) and the
+           photosensors (gain, offsets, masking). However, this driver does not make those readily
+           available in order to keep file size and memory footprint to a minimum, which is
+           critical for its use on more constrained platforms.
+        """
         return self._read8(_APDS9960_PDATA)
 
     ## GESTURE DETECTION
     # pylint: disable-msg=too-many-branches,too-many-locals,too-many-statements
     def gesture(self) -> int:
-        """Returns gesture code if detected.
-        0 if no gesture detected
-        1 = up, 2 = down, 3 = left, 4 = right
-        """
+        """Gesture sensor data.
+
+        This checks the sensor for new gesture engine results and, if they are present, retrieves
+        and processes the results to determine what, if any, gesture can be deduced from the sensor
+        data.
+
+        Returns a gesture code indicating the direction of the gesture. Before returning the code,
+        the `rotation` value is used to "rotate" the result as intended.
+
+        .. csv-table::
+           :header: "Code", "Direction"
+
+            0, "No gesture detected"
+            1, "Up"
+            2, "Down"
+            3, "Left"
+            4, "Right"
+
+        .. caution:: Will always return ``0`` if `enable_proximity` and `enable_gesture` are not set
+           to ``True``.
+
+        The data returned by the sensor is a continuous stream of four proximtiy measurements
+        constrained to up/down/left/right dimensions by using four directionally-aligned sensors.
+        The sensor itself doesn't include any logic to determine the gesture, leaving that work to
+        the implementer.
+
+        This driver implements an algorithm that reliably detects simple gestures in most scenarios
+        while remaining small and efficient enough to work within the resource constraints of as
+        many CircuitPython boards/platforms as possible.
+
+        .. tip:: Detecting gestures with this driver's algorithm requires actively, continously
+           polling for a gesture, with as little time as possible between `gesture()` calls. Even
+           with continous polling, however, its possible that gestures may go undetected by
+           `gesture()` calls if they occurred between or on the edges of `gesture()` method
+           execution.
+
+        .. warning:: If gesture data becomes available from the sensor, this driver will
+           continuously pull in that new data and analyze it until the sensor's gesture engine
+           exits and the sensor's FIFO buffers are clear. This allows for much more reliable
+           gesture detection by comparing the "first" to the "last" detected state at the cost of
+           blocking until the FIFOs are all clear. This will only happen if all four gesture values
+           drop below ``30``.
+
+           As a result, if an object is close to the sensor when `gesture()` is called, the method
+           will not return until it moves away.
+
+        .. note:: The sensor itself offers a very wide variety of configuration options for tuning
+           the gesture engine, such as the LEDs (pulse count/length, drive power), the photosensors
+           (gain, offsets, masking), the gesture engine's entry/exit thresholds, wait time, and
+           more. However, this driver does not make those readily available in order to keep file
+           size and memory footprint to a minimum, which is critical for its use on more
+           constrained platforms."""
         # If FIFOs have overflowed we're already way too late, so clear those FIFOs and wait
         if self._get_bit(_APDS9960_GSTATUS, _BIT_MASK_GSTATUS_GFOV):
             self._set_bit(_APDS9960_GCONF4, _BIT_MASK_GCONF4_GFIFO_CLR, True)
@@ -547,10 +737,22 @@ class APDS9960:
 
         Each value is a 16-bit integer with a possible value of ``0`` to ``65535``.
 
-        .. hint:: Testing with and tuning `color_gain` and `color_integration_time` values will
-           likely be required to get useful color results. Optimum values for these will depend
-           largely on the implementation details such as sensor positioning, illumination intensity
-           and color temperature, reflectivity of the object(s) being measured, etc."""
+        .. caution:: Will always return ``(0, 0, 0, 0)`` if `enable_color` is not set to ``True``.
+
+        .. tip:: To get useful, predictable `color_data` results it is important to tune
+           `color_gain` and `color_integration_time`, to accommodate different lighting conditions,
+           sensor placements, plastic/glass transparencies, expected object reflectivity, and
+           environmental conditions.
+
+           For instance, measuring color of objects close to the sensor with bright, nearby
+           illumination (such as the white LEDs on the `Adafruit Clue
+           <https://www.adafruit.com/product/4500>`_) may work well with a `color_gain` of ``0``
+           and a `color_integration_time` of ``72``.
+
+           However, measuring the intensity and color temperature of ambient light through
+           difusion glass or plastic is likely to require experimenting with a wide range of
+           `color_gain` and `color_integration_time` settings before useful data can be obtained.
+        """
         return (
             self._color_data16(_APDS9960_CDATAL + 2),
             self._color_data16(_APDS9960_CDATAL + 4),
