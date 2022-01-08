@@ -225,9 +225,9 @@ Initiaization Options
 ----------------------
 
 By default, when the driver is initialized, the APDS-9960 sensor's internal settings are reset and
-sensible defaults are applyed to several low-level settings that should work well for most use cases.
+sensible defaults are applied to several low-level settings that should work well for most use cases.
 
-If either the "reset" or "set defauls" behaviors (or both) aren't desired, they can be individually
+If either the "reset" or "set defaults" behaviors (or both) aren't desired, they can be individually
 disabled via init kwargs.
 
 .. code:: python3
