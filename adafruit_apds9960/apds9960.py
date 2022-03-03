@@ -201,7 +201,7 @@ class APDS9960:
             self._write8(_APDS9960_GCONF4, 0)
             self._write8(_APDS9960_GPULSE, 0)
             self._write8(_APDS9960_ATIME, 255)
-            self._write8(_APDS9960_CONTROL, 1)
+            self._write8(_APDS9960_CONTROL, 0)
 
             # Clear all non-gesture interrupts
             self.clear_interrupt()
