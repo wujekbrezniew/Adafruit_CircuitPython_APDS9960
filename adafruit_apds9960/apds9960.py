@@ -120,6 +120,10 @@ _BIT_MASK_PERS_PPERS = const(0xF0)
 _BIT_POS_CONTROL_AGAIN = const(0)
 _BIT_MASK_CONTROL_AGAIN = const(3)
 
+_BIT_POS_CONTROL_PGAIN = const(2)
+_BIT_MASK_CONTROL_PGAIN = const(0x0C)
+
+
 # pylint: disable-msg=too-many-instance-attributes
 class APDS9960:
     """
@@ -369,6 +373,30 @@ class APDS9960:
             self._set_bits(
                 _APDS9960_PERS, _BIT_POS_PERS_PPERS, _BIT_MASK_PERS_PPERS, persist
             )
+
+    @property
+    def proximity_gain(self) -> int:
+        """Proximity sensor gain value.
+
+        This sets the gain multiplier for the ADC during proximity engine operations.
+
+        .. csv-table::
+           :header: "``proximity_gain``", "Gain Multiplier", "Note"
+
+           0, "1x", "Power-on Default"
+           1, "2x", ""
+           2, "4x", ""
+           3, "8x", ""
+           """
+        return self._get_bits(
+            _APDS9960_CONTROL, _BIT_POS_CONTROL_PGAIN, _BIT_MASK_CONTROL_PGAIN
+        )
+
+    @proximity_gain.setter
+    def proximity_gain(self, value: int) -> None:
+        self._set_bits(
+            _APDS9960_CONTROL, _BIT_POS_CONTROL_PGAIN, _BIT_MASK_CONTROL_PGAIN, value
+        )
 
     def clear_interrupt(self) -> None:
         """Clears all non-gesture interrupts.
