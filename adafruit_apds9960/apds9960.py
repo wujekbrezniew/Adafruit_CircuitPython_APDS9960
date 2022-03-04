@@ -389,7 +389,7 @@ class APDS9960:
            1, "2x", ""
            2, "4x", ""
            3, "8x", ""
-           """
+        """
         return self._get_bits(
             _APDS9960_CONTROL, _BIT_POS_CONTROL_PGAIN, _BIT_MASK_CONTROL_PGAIN
         )
@@ -438,7 +438,7 @@ class APDS9960:
            1, "2x", ""
            2, "4x", "Driver Default"
            3, "8x", ""
-           """
+        """
         return self._get_bits(
             _APDS9960_GCONF2, _BIT_POS_GCONF2_GGAIN, _BIT_MASK_GCONF2_GGAIN
         )
