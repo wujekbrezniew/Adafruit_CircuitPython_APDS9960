@@ -120,6 +120,12 @@ _BIT_MASK_PERS_PPERS = const(0xF0)
 _BIT_POS_CONTROL_AGAIN = const(0)
 _BIT_MASK_CONTROL_AGAIN = const(3)
 
+_BIT_POS_CONTROL_PGAIN = const(2)
+_BIT_MASK_CONTROL_PGAIN = const(0x0C)
+
+_BIT_POS_GCONF2_GGAIN = const(5)
+_BIT_MASK_GCONF2_GGAIN = const(0x60)
+
 # pylint: disable-msg=too-many-instance-attributes
 class APDS9960:
     """
@@ -195,7 +201,7 @@ class APDS9960:
             self._write8(_APDS9960_GCONF4, 0)
             self._write8(_APDS9960_GPULSE, 0)
             self._write8(_APDS9960_ATIME, 255)
-            self._write8(_APDS9960_CONTROL, 1)
+            self._write8(_APDS9960_CONTROL, 0)
 
             # Clear all non-gesture interrupts
             self.clear_interrupt()
@@ -220,7 +226,7 @@ class APDS9960:
             self._write8(_APDS9960_GEXTH, 0x1E)
             # GEXPERS: 2 (4 cycles), GEXMSK: 0 (default) GFIFOTH: 2 (8 datasets)
             self._write8(_APDS9960_GCONF1, 0x82)
-            # GGAIN: 2 (4x), GLDRIVE: 100 mA (default), GGAIN: 1 (2x)
+            # GGAIN: 2 (4x), GLDRIVE: 100 mA (default), GWTIME: 1 (2.8ms)
             self._write8(_APDS9960_GCONF2, 0x41)
             # GPULSE: 5 (6 pulses), GPLEN: 2 (16 us)
             self._write8(_APDS9960_GPULSE, 0x85)
@@ -370,6 +376,30 @@ class APDS9960:
                 _APDS9960_PERS, _BIT_POS_PERS_PPERS, _BIT_MASK_PERS_PPERS, persist
             )
 
+    @property
+    def proximity_gain(self) -> int:
+        """Proximity sensor gain value.
+
+        This sets the gain multiplier for the ADC during proximity engine operations.
+
+        .. csv-table::
+           :header: "``proximity_gain``", "Gain Multiplier", "Note"
+
+           0, "1x", "Power-on Default"
+           1, "2x", ""
+           2, "4x", ""
+           3, "8x", ""
+        """
+        return self._get_bits(
+            _APDS9960_CONTROL, _BIT_POS_CONTROL_PGAIN, _BIT_MASK_CONTROL_PGAIN
+        )
+
+    @proximity_gain.setter
+    def proximity_gain(self, value: int) -> None:
+        self._set_bits(
+            _APDS9960_CONTROL, _BIT_POS_CONTROL_PGAIN, _BIT_MASK_CONTROL_PGAIN, value
+        )
+
     def clear_interrupt(self) -> None:
         """Clears all non-gesture interrupts.
 
@@ -394,6 +424,30 @@ class APDS9960:
     @enable_gesture.setter
     def enable_gesture(self, value: bool) -> None:
         self._set_bit(_APDS9960_ENABLE, _BIT_MASK_ENABLE_GESTURE, value)
+
+    @property
+    def gesture_gain(self) -> int:
+        """Gesture mode gain value.
+
+        This sets the gain multiplier for the ADC during gesture engine operations.
+
+        .. csv-table::
+           :header: "``gesture_gain``", "Gain Multiplier", "Note"
+
+           0, "1x", "Power-on Default"
+           1, "2x", ""
+           2, "4x", "Driver Default"
+           3, "8x", ""
+        """
+        return self._get_bits(
+            _APDS9960_GCONF2, _BIT_POS_GCONF2_GGAIN, _BIT_MASK_GCONF2_GGAIN
+        )
+
+    @gesture_gain.setter
+    def gesture_gain(self, value: int) -> None:
+        self._set_bits(
+            _APDS9960_GCONF2, _BIT_POS_GCONF2_GGAIN, _BIT_MASK_GCONF2_GGAIN, value
+        )
 
     @property
     def rotation(self) -> int:
