@@ -14,6 +14,10 @@ Introduction
     :target: https://github.com/adafruit/Adafruit_CircuitPython_APDS9960/actions/
     :alt: Build Status
 
+.. image:: https://img.shields.io/badge/code%20style-black-000000.svg
+    :target: https://github.com/psf/black
+    :alt: Code Style: Black
+
 The APDS-9960 is a specialized chip that detects hand gestures, proximity
 and ambient light color over I2C. Its available from
 `Adafruit as a breakout <https://www.adafruit.com/product/3595>`_ and as a built-in sensor on
