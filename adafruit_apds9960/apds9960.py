@@ -126,6 +126,7 @@ _BIT_MASK_CONTROL_PGAIN = const(0x0C)
 _BIT_POS_GCONF2_GGAIN = const(5)
 _BIT_MASK_GCONF2_GGAIN = const(0x60)
 
+
 # pylint: disable-msg=too-many-instance-attributes
 class APDS9960:
     """
@@ -174,7 +175,6 @@ class APDS9960:
         reset: bool = True,
         set_defaults: bool = True
     ):
-
         self.rotation = rotation
 
         self.buf129 = None  # Gesture FIFO buffer, only instantiated if needed
